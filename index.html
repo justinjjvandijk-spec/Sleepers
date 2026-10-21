@@ -3,50 +3,835 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sleepers</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sleepers">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0a0a0b">
 <link rel="apple-touch-icon" href="IMG_2519.png">
 <link rel="icon" type="image/png" href="IMG_2519.png">
 <link rel="manifest" href="manifest.webmanifest">
-<script>
-  var APP = "https://claude.ai/artifact/3yF6qAWoeqEy6L3n3F4Vj5";
-  if (/[?&]app=1/.test(location.search)) location.replace(APP);
-</script>
+<title>Sleepers Crew</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-  :root{color-scheme:dark}
-  body{margin:0;background:#12110f;color:#efe8dd;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(24px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) 40px max(20px,env(safe-area-inset-left))}
-  main{max-width:460px;margin:0 auto;display:grid;gap:20px}
-  img{width:96px;height:96px;border-radius:22px}
-  h1{margin:0;font-size:28px;line-height:1.1}
-  p{margin:0;color:#9d9488}
-  a.go{display:block;text-align:center;background:#f2a43a;color:#1d1305;text-decoration:none;font-weight:700;padding:14px;border-radius:12px}
-  ol{margin:0;padding-left:22px;display:grid;gap:8px}
-  b{color:#efe8dd}
-  .box{border:1px solid #35302a;border-radius:12px;padding:16px;display:grid;gap:10px;background:#1c1a17}
+html{-webkit-text-size-adjust:100%}[hidden]{display:none!important}img{max-width:100%}
+/* Layout: one-column phone app — production header, week views in stacked rows, fixed bottom tab bar. Deliberately dark: black, neutral greys, one orange accent. */
+:root{
+  --bg:#0a0a0b; --surface:#151517; --raise:#1f1f22; --line:#2b2b2f; --fg:#f3f3f4; --muted:#a3a3aa; --dim:#6f6f77;
+  --amber:#ff7a1a; --amber-ink:#150900; --amber-soft:rgba(255,122,26,.14);
+  --blue:#7cb8ff; --green:#86c98a; --purple:#c7a2f2; --red:#ff8a7a; --yellow:#f3d067; --grey:#a3a3aa;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:760px;margin:0 auto}
+
+header{background:var(--bg)}
+.hbar{display:flex;align-items:center;gap:12px;padding-block:12px}
+.banner{height:40px;width:auto;max-width:100%;border-radius:6px;display:block}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--amber);color:var(--amber-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;flex:none;overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:cover}
+.word{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.08em;line-height:1}
+.word small{display:block;font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.who{border:0;background:none;color:var(--muted);font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border-bottom:1px dotted var(--dim);padding:2px 0;flex:none}
+.jobtitle{display:grid;gap:6px;text-align:left;border:0;background:none;padding:4px 0 16px;width:100%;color:var(--fg)}
+#jobname{font-family:var(--display);font-weight:800;font-size:clamp(34px,10vw,46px);line-height:.95;letter-spacing:.01em}
+.jobsub{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.glow{height:2px;background:linear-gradient(90deg,transparent,var(--amber) 22%,#ffc79e 50%,var(--amber) 78%,transparent);opacity:.85}
+.weeknav{display:flex;align-items:center;gap:10px;padding-bottom:14px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.weeknav .wk{font-family:var(--mono);font-weight:600;font-size:17px;color:var(--amber);letter-spacing:.04em}
+.weeknav .rng{font-family:var(--mono);font-size:13.5px;color:var(--muted)}
+.wbtn{width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:20px;color:var(--fg);flex:none}
+.drow{display:grid;grid-template-columns:50px 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:14px 2px;color:var(--fg)}
+.drow .dn{font-family:var(--mono);font-size:24px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.drow .dw{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-top:5px}
+.drow .tm{font-family:var(--mono);font-size:15px;min-width:0;font-variant-numeric:tabular-nums}
+.drow .tm small{display:block;font-family:var(--body);font-size:12.5px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drow .tm .badges{justify-content:flex-start;margin-top:5px}
+.drow .hr{text-align:right;font-family:var(--mono);font-size:22px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.drow .hr small{display:block;font-size:11.5px;color:var(--dim);font-weight:400;margin-top:5px}
+.drow.off{opacity:.42}.drow.off .tm{font-family:var(--body);font-style:italic;color:var(--muted)}
+.drow.todo .tm{font-family:var(--body);font-style:italic;color:var(--amber)}
+.drow.today .dn{color:var(--amber)}
+.totcard{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:18px 0 12px}
+.totcard .k{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.totcard .big{font-family:var(--mono);font-size:44px;font-weight:700;color:var(--amber);line-height:1;font-variant-numeric:tabular-nums}
+.totcard .big small{font-size:18px;margin-left:3px}
+.totcard .side{margin-left:auto;text-align:right;font-family:var(--mono);font-size:13.5px;color:var(--muted);display:grid;gap:4px}
+.linkbtn{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:none;border-radius:12px;padding:14px 16px;font-size:16px;margin-bottom:10px;color:var(--fg)}
+.sect{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px}
+.mtx{min-width:0}
+.mtx th,.mtx td{padding:11px 8px}
+.mtx td.c,.mtx th.c{text-align:center}
+.mtx td.c button{border:0;background:none;font:inherit;color:inherit;padding:2px 4px}
+.mtx .dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--amber);vertical-align:middle}
+.mtx .nil{color:var(--dim)}
+.mtx tr.we td{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.035) 6px 12px)}
+.mtx tr.me td{background:var(--amber-soft)}
+.mtx tfoot td{font-weight:700;border-bottom:0}
+.mtx th small{display:block;font-weight:400;letter-spacing:0;text-transform:none;font-size:11px}
+.jobbtn{display:flex;align-items:center;gap:6px;background:var(--raise);border:1px solid var(--line);border-radius:999px;padding:7px 12px 7px 14px;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.04em;max-width:50%}
+.jobbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jobbtn svg{flex:none;opacity:.7}
+
+main{padding-block:16px calc(104px + env(safe-area-inset-bottom,0px))}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--raise);color:var(--fg)}
+.spacer{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{border-color:var(--amber);background:var(--amber-soft);color:var(--amber)}
+.mepick{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.mepick select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 8px;color:var(--fg)}
+
+.block{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.bhead{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.dd{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.04em;color:var(--amber);min-width:48px}
+.bmeta{min-width:0;flex:1;font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bmeta b{color:var(--fg);font-weight:600}
+.iconbtn{border:1px solid var(--line);background:var(--raise);border-radius:10px;width:40px;height:40px;font-size:18px;display:grid;place-items:center;flex:none;color:var(--muted)}
+
+.hrow{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:13px 12px;min-height:52px;border-top:1px solid var(--line)}
+.hrow:first-of-type{border-top:0}
+.hrow.mine{background:var(--amber-soft)}
+.hrow.mine .pname{color:var(--amber)}
+.pname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.times{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--fg);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.times .l{color:var(--dim)}
+.times.empty{color:var(--dim);font-family:var(--body);font-style:italic}
+.badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.b{font-family:var(--mono);font-size:11.5px;padding:2px 6px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.b.ot{background:rgba(255,122,26,.18);color:var(--amber)}
+.b.dr{background:rgba(124,184,255,.15);color:var(--blue)}
+.note{grid-column:2/-1;font-size:13px;color:var(--muted);margin-top:-4px;overflow-wrap:anywhere}
+
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px 14px;padding:12px}
+.kv .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.kv .v{font-size:14.5px;overflow-wrap:anywhere}
+.kv .v.mono{font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+.kv.wide{grid-column:1/-1}
+.cardbtn{display:block;width:100%;text-align:left;background:none;border:0;padding:0;color:inherit}
+
+.irow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.irow:first-of-type{border-top:0}
+.irow.done .iname{color:var(--dim);text-decoration:line-through}
+.check{width:32px;height:32px;border-radius:7px;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;padding:0}
+.check[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#0f1a10}
+.iname{font-weight:500;background:none;border:0;text-align:left;padding:0;min-width:0;overflow-wrap:anywhere}
+.iqty{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right;white-space:nowrap}
+.cat{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.05em;text-transform:uppercase}
+.dot{width:10px;height:10px;border-radius:3px;background:var(--c,var(--grey))}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:480px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td{font-family:var(--mono);font-size:13.5px}
+td:first-child{font-family:var(--body);font-weight:600;font-size:15px}
+tr.mine td:first-child{color:var(--amber)}
+tbody tr:last-child td{border-bottom:0}
+
+.add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed var(--line);background:none;border-radius:12px;padding:12px;color:var(--muted);font-weight:600}
+.empty{text-align:center;padding:36px 16px;color:var(--muted);border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:12px}
+.empty h3{font-family:var(--display);font-size:22px;letter-spacing:.04em;color:var(--fg);margin:0 0 6px}
+.banner{font-size:13.5px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:12px;background:var(--surface)}
+.banner b{color:var(--yellow)}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(10,10,11,.97);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabsin{display:grid;grid-template-columns:repeat(6,1fr);max-width:760px;margin:0 auto}
+.tabsin button{border:0;background:none;padding:9px 4px 10px;display:grid;justify-items:center;gap:3px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--dim)}
+.tabsin button{font-size:12px;letter-spacing:.02em;min-height:68px;padding:10px 2px 12px;gap:5px;border-top:3px solid transparent;white-space:nowrap}
+.tabsin svg{width:26px;height:26px}
+.tabsin button[aria-current="page"]{color:var(--amber);border-top-color:var(--amber)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet h2{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.03em;margin:0 0 14px;text-wrap:balance}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:5px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.field input,.field select,.field textarea{width:100%;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 11px;font-size:16px}
+.field input[type=time],.field input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.field label.ck{display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:15px;color:var(--fg);padding:10px 0}
+.field .ck input{width:22px;height:22px;padding:0;accent-color:var(--amber)}
+.field textarea{min-height:76px;resize:vertical}
+.crewpick{display:flex;flex-wrap:wrap;gap:6px}
+.sfoot{display:flex;gap:10px;margin-top:18px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--raise);border-radius:12px;padding:13px 18px;font-weight:600;min-height:48px}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:var(--amber-ink);flex:1}
+.btn.danger{color:var(--red);border-color:rgba(255,138,122,.35);background:none}
+.btn.danger.arm{background:var(--red);color:#1d0805;border-color:var(--red)}
+.byline{font-size:12.5px;color:var(--dim);margin-top:12px}
+.joblist{display:grid;gap:6px;margin-bottom:16px}
+.jobitem{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:11px 12px;text-align:left;width:100%}
+.jobitem[aria-current="true"]{border-color:var(--amber)}
+.jobitem small{color:var(--muted)}
+.sub{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:30;pointer-events:none;max-width:calc(100% - 32px)}
+/* callsheets */
+.cslist{display:grid;gap:10px}
+.cscard{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.cscard .when{font-size:13px;color:var(--muted)}
+.cscard .loc{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cscard .call{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--amber);text-align:right;line-height:1.1}
+.cscard .call small{display:block;font-family:var(--body);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.cscard.today{border-color:var(--amber)}
+.back{border:0;background:none;color:var(--muted);font-weight:600;padding:4px 0;margin-bottom:10px;display:inline-flex;gap:6px;align-items:center}
+.cshero{margin-bottom:14px}
+.cshero .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.cshero h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8vw,42px);letter-spacing:.02em;line-height:1;margin:4px 0 0;text-wrap:balance}
+.times4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.times4>div{background:var(--surface);padding:10px 12px}
+.times4 .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.times4 .v{font-family:var(--mono);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.times4 .key .v{color:var(--amber)}
+.times4 .v small{font-size:12px;color:var(--muted);font-weight:400}
+.pl{border-color:rgba(255,122,26,.45)}
+.pl .bhead{background:var(--amber-soft)}
+.srow{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.srow:first-of-type{border-top:0}
+.srow .t{font-family:var(--mono);font-size:13.5px;color:var(--amber);font-variant-numeric:tabular-nums}
+.srow .w{min-width:0;overflow-wrap:anywhere}
+.srow .w b{font-weight:600}
+.srow .w .s{font-size:13.5px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;padding:1px 6px;border-radius:4px;background:var(--raise);color:var(--muted);margin-right:4px;vertical-align:1px}
+.tag.n{background:rgba(124,184,255,.15);color:var(--blue)}
+.ltxt{padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.drop{display:grid;gap:10px}
+.drop input[type=file]{width:100%;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:14px;font-size:15px}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line)}
+.navcard{background:var(--surface);padding:12px;display:grid;gap:8px;align-content:start}
+.navcard .nk{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.navcard .nv{min-width:0;overflow-wrap:anywhere}.navcard .s{font-size:13.5px;color:var(--muted)}
+.navgo{display:block;text-align:center;text-decoration:none}
+.navalt{display:flex;gap:14px;font-size:13.5px}.navalt a{color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;padding:8px}
+.pthumb{border:0;padding:0;background:#000;border-radius:10px;overflow:hidden;position:relative;aspect-ratio:1;max-width:100%}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pthumb span{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);color:#fff;font-size:11.5px;padding:4px 6px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status{font-size:13.5px;color:var(--muted);min-height:1.4em}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+@media (max-width:380px){.hrow{grid-template-columns:64px 1fr}.badges{grid-column:2;justify-content:flex-start}}
 </style>
+
 </head>
 <body>
-<main>
-  <img src="IMG_2519.png" alt="IJzerman Lichttechniek">
-  <h1>Sleepers<br>lichtcrew</h1>
-  <a class="go" href="https://claude.ai/artifact/3yF6qAWoeqEy6L3n3F4Vj5">Open de app</a>
-  <div class="box">
-    <b>Op je beginscherm zetten (iPhone)</b>
-    <ol>
-      <li>Open deze pagina in <b>Safari</b>.</li>
-      <li>Tik op het deel-icoon (vierkant met pijl omhoog).</li>
-      <li>Kies <b>Zet op beginscherm</b> en tik op <b>Voeg toe</b>.</li>
-    </ol>
-  </div>
-  <div class="box">
-    <b>Android</b>
-    <p>Open deze pagina in Chrome → menu ⋮ → <b>Toevoegen aan startscherm</b>.</p>
-  </div>
-  <p>Tik daarna op het icoon: de app opent direct.</p>
-</main>
+<header><div class="wrap">
+  <div class="hbar"><div class="brand" data-act="home" role="button" tabindex="0" aria-label="Op beginscherm zetten" style="cursor:pointer"><img class="banner" src="data:image/jpeg;base64,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" alt="IJzerman Lichttechniek" width="132" height="40"></div><button class="who" data-act="who" id="whobtn">Wie ben je?</button></div>
+  <button class="jobtitle" data-act="jobs" id="jobbtn"><span id="jobname">Klus kiezen</span><span class="jobsub" id="jobsub"></span></button>
+  <div class="glow"></div>
+</div></header>
+
+<main class="wrap" id="main"></main>
+
+<nav class="tabs"><div class="tabsin" id="tabs"></div></nav>
+<div id="sheetroot"></div>
+<div id="toastroot"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-  try { history.replaceState(null, "", "?app=1"); } catch (e) {}
+const CATS={"Gaffertape":"var(--yellow)","Filter":"var(--blue)","Blackwrap":"var(--green)","Hazer Fluid":"var(--purple)","Accu klemmetjes":"var(--red)","Overig":"var(--grey)"};
+const TABS=[
+ ["cs","Callsheet",'<path d="M7 3h7l4 4v14H7z" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 3v4h4M10 12h5M10 16h5" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+ ["mijn","Uren",'<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+ ["team","Team",'<circle cx="9" cy="9" r="3.2" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6M15.5 6.2a3 3 0 0 1 0 5.6M17.5 14.6c1.6.6 2.7 2 3 4.4" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+ ["planning","Planning",'<path d="M4 6h16v14H4zM8 3v5M16 3v5M4 11h16" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+ ["exp","Materiaal",'<path d="M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'],
+ ["recce","Locaties",'<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>']
+];
+const LS={get(k,d){try{const v=localStorage.getItem("slp."+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem("slp."+k,JSON.stringify(v))}catch(e){}}};
+const S={db:null,user:null,uid:null,canWrite:true,status:"loading",jobs:[],jobId:LS.get("job",null),days:[],items:[],recce:[],sheets:[],defects:[],cs:null,rc:null,sample:null,month:LS.get("month","all"),rate:"",tab:({uren:"mijn"})[LS.get("tab","cs")]||LS.get("tab","cs"),week:null,sub:"",hv:"dag",me:LS.get("me",""),mineOnly:LS.get("mine",false),nav:LS.get("nav","google"),unsubs:[],sheet:null};
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+const fmtDur=m=>{m=+m||0;if(!m)return"";return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
+const toMin=t=>{if(!t||!/^\d{1,2}:\d{2}$/.test(t))return null;const[h,m]=t.split(":").map(Number);return h*60+m};
+const span=(a,b)=>{const x=toMin(a),y=toMin(b);if(x==null||y==null)return 0;let d=y-x;if(d<0)d+=1440;return d};
+const fmtDate=d=>{if(!d)return"";const x=new Date(d+"T12:00:00");if(isNaN(x))return d;return x.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short"})};
+const ddId=n=>"dd"+String(n).padStart(2,"0");
+const job=()=>S.jobs.find(j=>j.id===S.jobId)||null;
+const crew=()=>(job()?.crew)||[];
+function teamOf(d){const t=[...(d.team||[])];Object.keys(d.hours||{}).forEach(p=>{if(!t.includes(p))t.push(p)});return t}
+const RULES=()=>({day:+(job()?.dayMin)||630,free:120,ta:600,taWk:3480,kmP:.25,kmM:.35,...(job()?.rules||{})});
+const dayMin=()=>RULES().day;
+const travelOf=e=>+e.travel||+e.drive||0;
+const dnum=iso=>Math.round(new Date(iso+"T12:00:00")/864e5);
+function calc(e){const r=RULES(),tv=travelOf(e),km=+e.km||0;return{ot:otOf(e),tr100:e.driver?Math.min(tv,r.free):0,tr150:Math.max(0,tv-r.free),km,kmEur:km*(e.kmType==="Personen"?r.kmP:r.kmM),park:+e.park||0,pd:pdOf(e)}}
+function turnaround(p){const r=RULES(),out={};
+  const list=S.days.filter(d=>d.date&&(d.hours||{})[p]&&(d.hours[p].in||d.hours[p].open)).sort((a,b)=>a.date.localeCompare(b.date));
+  for(let i=1;i<list.length;i++){const a=list[i-1],b=list[i],ea=a.hours[p],eb=b.hours[p],sA=ea.in||ea.open,eA=ea.out||ea.close;if(!sA||!eA)continue;
+    const d0=dnum(a.date),d1=dnum(b.date);if(d1<=d0||d1-d0>4)continue;
+    const endAbs=d0*1440+toMin(sA)+span(sA,eA),startAbs=d1*1440+toMin(eb.in||eb.open);
+    let wk=false;for(let k=d0+1;k<d1;k++){const wd=new Date(k*864e5).getUTCDay();if(wd===0||wd===6)wk=true}
+    const short=Math.floor(Math.max(0,(wk?r.taWk:r.ta)-(startAbs-endAbs))/15)*15;if(short)out[b.id]=short}
+  return out}
+const myName=()=>(job()?.members||{})[S.uid]||S.me||"";
+const leads=()=>job()?.leads||["Michel","Justin"];
+const isLead=()=>S.isOwner||leads().includes(myName());
+const canEditRow=p=>S.canWrite&&(isLead()||(!!myName()&&p===myName()));
+function plDur(cs,p){if(!cs)return 0;const call=callOf(cs);if(!call)return 0;const full=((job()?.roles?.[p]||p).split("·")[0]||"").trim().toLowerCase();let best=0;
+  (cs.prelights||[]).forEach(pl=>{const who=(pl.who||"").toLowerCase();const hit=who.includes(p.toLowerCase())||(full&&who.includes(full))||/(licht|light|electric|elektr)/i.test(pl.who||"");if(!hit||!pl.time)return;const d=span(pl.time,call);if(d>0&&d<=360&&d>best)best=d});return best}
+const pdOf=e=>/25/.test(e.perdiem||"")?25:/15/.test(e.perdiem||"")?15:0;
+const PD=["Geen","Draaidag met overnachting (€15)","Prepdag met overnachting (€25)"];
+function missingHours(){const me=myName();if(!me||!S.canWrite)return[];const t=todayISO(),y=new Date(Date.now()-864e5),yi=y.getFullYear()+"-"+String(y.getMonth()+1).padStart(2,"0")+"-"+String(y.getDate()).padStart(2,"0");const now=new Date(),nowM=now.getHours()*60+now.getMinutes();
+  return S.days.filter(d=>(d.date===yi||(d.date===t&&nowM>(toMin(d.end)??1080)))&&teamOf(d).includes(me)&&!((d.hours||{})[me]||{}).close)}
+function reminderBanner(){const m=missingHours();return m.map(d=>`<div class="banner" style="border-color:rgba(255,122,26,.45);display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b style="color:var(--amber)">Uren invullen:</b> DD${esc(d.n)} · ${esc(fmtDate(d.date))}</span><button class="btn primary" style="flex:none" data-act="hour" data-day="${d.id}" data-p="${esc(myName())}">Nu invullen</button></div>`).join("")}
+const eur=n=>"€"+(Math.round(n*100)/100).toFixed(2).replace(".",",");
+const isAuto=e=>e.ot===""||e.ot==null;
+const autoOT=e=>(e.open&&e.close)?Math.max(0,span(e.open,e.close)+(+e.pre||0)-dayMin()):0;
+const otOf=e=>isAuto(e)?autoOT(e):(+e.ot||0);
+const addMin=(t,m)=>{const x=toMin(t);if(x==null)return"";const y=((x+m)%1440+1440)%1440;return String(Math.floor(y/60)).padStart(2,"0")+":"+String(y%60).padStart(2,"0")};
+const todayISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+function allPeople(){const set=[...crew()];S.days.forEach(d=>teamOf(d).forEach(p=>{if(!set.includes(p))set.push(p)}));return set}
+
+let toastT;function toast(msg){$("toastroot").innerHTML=`<div class="toast">${esc(msg)}</div>`;clearTimeout(toastT);toastT=setTimeout(()=>$("toastroot").innerHTML="",2200)}
+async function write(fn,ok="Opgeslagen"){
+  if(!S.db){toast("Geen verbinding met de opslag");return false}
+  try{await fn();if(ok)toast(ok);return true}
+  catch(e){if(e&&e.code==="invalid_argument"&&!S.canWriteKnown){S.canWrite=false;render();toast("Je kunt hier alleen meekijken")}
+    else if(e&&e.code==="quota_exceeded")toast("Opslag is vol: verwijder oude klussen");
+    else toast("Opslaan lukte niet, probeer het opnieuw");return false}
+}
+
+/* ---------- render ---------- */
+function render(){
+  const j=job();
+  $("jobname").textContent=j?j.name:"Klus kiezen";$("jobsub").textContent=j?.subtitle||"";$("whobtn").textContent=myName()||"Wie ben je?";
+  $("tabs").innerHTML=TABS.map(([k,l,ic])=>`<button data-act="tab" data-tab="${k}" ${S.tab===k?'aria-current="page"':""}><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg>${l}</button>`).join("");
+  const m=$("main");if(S.status==="code")return;
+  if(S.status==="loading"){m.innerHTML=`<div class="empty"><h3>Laden…</h3>Klussen en uren worden opgehaald.</div>`;return}
+  if(S.status==="nodb"){m.innerHTML=`<div class="empty"><h3>Opslag niet beschikbaar</h3>De verbinding met de database lukt niet. Controleer je internet en open de app opnieuw.</div>`;return}
+  let h=S.canWrite?"":`<div class="banner"><b>Alleen meekijken.</b> Je kunt hier alleen meekijken.</div>`;
+  if(!j){m.innerHTML=h+`<div class="empty"><h3>Nog geen klus</h3>Maak je eerste klus aan met de crew erbij.</div>${S.canWrite?`<button class="add" data-act="newjob">+ Nieuwe klus</button>`:""}`;return}
+  h+=({cs:vCallsheets,mijn:vMijn,team:vTeam,planning:vPlanning,exp:vExp,recce:vRecce}[S.tab]||vCallsheets)();
+  m.innerHTML=h;hydratePhotos();
+}
+const sortedDays=(dir=-1)=>[...S.days].sort((a,b)=>dir*((a.n||0)-(b.n||0)));
+
+function dayBlocks(days){
+  const people=allPeople();const TA={};people.forEach(p=>TA[p]=turnaround(p));let h="";
+  for(const d of days){
+    const team=teamOf(d);
+    h+=`<section class="block"><div class="bhead"><span class="dd">DD${esc(d.n)}</span><span class="bmeta">${d.date?`<b>${esc(fmtDate(d.date))}</b>`:""}${d.date&&d.location?" · ":""}${esc(d.location||"")}</span>${S.canWrite?`<button class="iconbtn" data-act="addperson" data-day="${d.id}" aria-label="Crewlid toevoegen">+</button>`:""}</div>`;
+    for(const p of team){
+      const e=(d.hours||{})[p]||{};
+      const hasT=e.open||e.close;
+      const t=hasT?`${e.in?`${esc(e.in)}<span class="l"> › </span>`:""}${esc(e.open||"–")}–${esc(e.close||"–")}${e.out?`<span class="l"> › </span>${esc(e.out)}`:""}`:"nog niet ingevuld";
+      h+=`<button class="hrow ${p===S.me?"mine":""}" data-act="hour" data-day="${d.id}" data-p="${esc(p)}"><span class="pname">${esc(p)}</span><span class="times ${hasT?"":"empty"}">${t}</span><span class="badges">${e.pre?`<span class="b">Pre ${fmtDur(e.pre)}</span>`:""}${otOf(e)?`<span class="b ot">OT ${fmtDur(otOf(e))}</span>`:""}${travelOf(e)?`<span class="b dr">Reis ${fmtDur(travelOf(e))}${e.driver?" · bus":""}</span>`:""}${TA[p]?.[d.id]?`<span class="b" style="color:var(--red)">TA ${fmtDur(TA[p][d.id])}</span>`:""}${e.km?`<span class="b">${esc(e.km)} km</span>`:""}</span>${e.note?`<span class="note">${esc(e.note)}</span>`:""}</button>`;
+    }
+    h+=`</section>`;
+  }
+  return h;
+}
+const inMonth=d=>S.month==="all"||(d.date||"").startsWith(S.month);
+function personDays(p,TA){return sortedDays(1).filter(d=>inMonth(d)).map(d=>{const e=(d.hours||{})[p];if(!e||!(e.open||e.close))return null;return{d,e,c:calc(e),ta:TA[d.id]||0}}).filter(Boolean)}
+function sumDays(list){const s={days:list.length,ot:0,tr100:0,tr150:0,ta:0,km:0,kmEur:0,park:0,pd:0};list.forEach(x=>{s.pd+=x.c.pd;s.ot+=x.c.ot;s.tr100+=x.c.tr100;s.tr150+=x.c.tr150;s.ta+=x.ta;s.km+=x.c.km;s.kmEur+=x.c.kmEur;s.park+=x.c.park});return s}
+const extraEur=(s,rate)=>rate/10*(s.ot*1.5+s.tr100+s.tr150*1.5+s.ta*1.25)/60;
+function specText(p,list){const j=job();const L=[`${j?.roles?.[p]||p} · ${j?.name||""}${S.month!=="all"?" · "+monthLabel(S.month):""}`,""];
+  list.forEach(({d,c,ta})=>{const parts=[];if(c.ot)parts.push(`overuren ${fmtDur(c.ot)} (150%)`);if(c.tr100)parts.push(`reis ${fmtDur(c.tr100)} (100%)`);if(c.tr150)parts.push(`reis ${fmtDur(c.tr150)} (150%)`);if(ta)parts.push(`turnaround ${fmtDur(ta)} (125%)`);if(c.km)parts.push(`${c.km} km ${d.hours[p].kmType==="Personen"?"personen":"met materiaal"}`);if(c.park)parts.push(`parkeren ${eur(c.park)}`);if(c.pd)parts.push(`per diem ${eur(c.pd)}`);L.push(`${fmtDate(d.date)||"zonder datum"} · DD${d.n}: ${parts.length?parts.join(", "):"draaidag"}`)});
+  const s=sumDays(list);L.push("",`Totaal: ${s.days} dagen · overuren ${fmtDur(s.ot)||"0:00"} · reis 100% ${fmtDur(s.tr100)||"0:00"} · reis 150% ${fmtDur(s.tr150)||"0:00"} · turnaround ${fmtDur(s.ta)||"0:00"} · ${s.km} km (${eur(s.kmEur)}) · parkeren ${eur(s.park)} · per diem ${eur(s.pd)}`);
+  return L.join("\n")}
+const monthLabel=m=>{const x=new Date(m+"-15T12:00:00");return isNaN(x)?m:x.toLocaleDateString("nl-NL",{month:"long",year:"numeric"})};
+function vTotals(people){
+  const months=[...new Set(S.days.map(d=>(d.date||"").slice(0,7)).filter(Boolean))].sort().reverse();
+  if(S.month!=="all"&&!months.includes(S.month))S.month="all";
+  let h=`<div class="toolbar"><label class="mepick">Periode <select id="monthsel"><option value="all">Alle dagen</option>${months.map(m=>`<option value="${m}" ${m===S.month?"selected":""}>${esc(monthLabel(m))}</option>`).join("")}</select></label></div>`;
+  const rows=people.map(p=>{const TA=turnaround(p),list=personDays(p,TA);return{p,list,s:sumDays(list)}}).filter(r=>r.s.days);
+  if(!rows.length)return h+`<div class="empty"><h3>Nog niets te tellen</h3>Totalen verschijnen zodra er tijden zijn ingevuld.</div>`+rulesBlock();
+  h+=`<div class="tablewrap"><table><thead><tr><th>Crew</th><th>Dagen</th><th>Overuren 150%</th><th>Reis 100%</th><th>Reis 150%</th><th>Turnaround 125%</th><th>Km</th><th>Parkeren</th><th>Per diem</th></tr></thead><tbody>${rows.map(({p,s})=>`<tr class="${p===S.me?"mine":""}"><td>${esc(p)}${job()?.roles?.[p]?`<br><small style="color:var(--dim);font-weight:400;font-size:12px">${esc((job().roles[p].split("·")[1]||"").trim())}</small>`:""}</td><td>${s.days}</td><td>${fmtDur(s.ot)||"–"}</td><td>${fmtDur(s.tr100)||"–"}</td><td>${fmtDur(s.tr150)||"–"}</td><td>${fmtDur(s.ta)||"–"}</td><td>${s.km||"–"}</td><td>${s.park?eur(s.park):"–"}</td><td>${s.pd?eur(s.pd):"–"}</td></tr>`).join("")}</tbody></table></div>`;
+  const mine=rows.find(r=>r.p===S.me);
+  if(mine){const s=mine.s,rate=+S.rate||0;
+    h+=`<section class="block" style="margin-top:12px"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>Factuur ${esc(S.me)}</span></div><div class="plan">
+    <div class="kv"><div class="k">Mijn dagprijs</div><div class="v"><input id="ratein" type="number" inputmode="decimal" step="1" value="${rate||""}" placeholder="€" style="width:110px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-family:var(--mono)"></div></div>
+    ${rate?kv("Extra uren",eur(extraEur(s,rate)),1):""}${kv("Kilometers",s.km?`${s.km} km · ${eur(s.kmEur)}`:"",1)}${kv("Parkeren",s.park?eur(s.park):"",1)}${kv("Per diem",s.pd?eur(s.pd):"",1)}${rate?kv("Bovenop dagprijzen",eur(extraEur(s,rate)+s.kmEur+s.park+s.pd),1):""}
+    <div class="kv wide"><div class="k">Specificatie per dag</div><div class="v" style="white-space:pre-wrap;font-size:13.5px;color:var(--muted)">${esc(specText(S.me,mine.list).split("\n").slice(2).join("\n"))}</div></div></div>
+    <div class="actions" style="padding:0 12px 4px"><button class="btn" data-act="speccopy">Kopieer specificatie</button></div><p class="byline" style="padding:0 12px 10px;margin:0">Je dagprijs wordt alleen op dit toestel bewaard. Uurprijs = dagprijs / 10.</p></section>`}
+  else if(people.length)h+=`<p class="byline">Tik rechtsboven op "Wie ben je?" voor je eigen factuurspecificatie.</p>`;
+  return h+rulesBlock();
+}
+function rulesBlock(){const r=RULES();return`<details class="block" style="margin-top:12px"><summary style="padding:12px;cursor:pointer;font-weight:600">Afspraken uit het draaidagenbeleid</summary><div class="ltxt" style="padding-top:0;color:var(--muted)">Draaidag: ${fmtDur(r.day)} vanaf call (9:30 werk + 30 min lunch + 15 min ontbijt + 15 min wrap). Daarna overuren tegen 150%.
+Uurprijs = dagprijs / 10.
+Pre-calls tellen alleen als ze op de callsheet staan.
+Reistijd vanaf standplaats Fiction Valley (Pieter Braaijweg 1, Amsterdam) of het hotel. Eerste 2 uur niet vergoed, daarboven 150%.
+Bestuurder lichtbus: werkdag begint en eindigt bij de bus; eerste 2 reisuren 100%, daarboven 150%. Bijrijder niet.
+Turnaround minimaal 10 uur, over het weekend 58 uur. Tekort tegen 125%, per volledig kwartier.
+Geen nachttarief, geen toeslag zon- en feestdagen.
+Km: €0,25 personen, €0,35 met materiaal. Parkeren op bon.
+Per diem: €15 draaidag met overnachting, €25 prepdag met overnachting.
+Lunch uiterlijk 6 uur na call.
+Factuur maandelijks naar facturen@fremantle.com, cc jessica@fictionvalley.nl, o.v.v. Nordin – 3276NORDIN02. Kilometers, overuren en parkeren per dag gespecificeerd.</div></details>`}
+const pad=n=>String(n).padStart(2,"0");
+const iso8=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const addDays=(iso,n)=>{const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+n);return iso8(d)};
+const mondayOf=iso=>{const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()-((d.getDay()+6)%7));return iso8(d)};
+function isoWeek(iso){const d=new Date(iso+"T12:00:00");d.setDate(d.getDate()+3-((d.getDay()+6)%7));const w1=new Date(d.getFullYear(),0,4,12);return 1+Math.round(((d-w1)/864e5-3+((w1.getDay()+6)%7))/7)}
+function curWeek(){if(S.week)return S.week;const t=todayISO(),wk=mondayOf(t);const dated=S.days.filter(d=>d.date).map(d=>d.date).sort();
+  if(!dated.length||dated.some(x=>mondayOf(x)===wk))return wk;const up=dated.find(x=>x>=t);return mondayOf(up||dated[dated.length-1])}
+const weekDates=()=>{const m=curWeek();return Array.from({length:7},(_,i)=>addDays(m,i))};
+function weekNav(){const m=curWeek(),e=addDays(m,6),f=x=>new Date(x+"T12:00:00").toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+  return`<div class="weeknav"><div style="flex:1;min-width:0"><div class="wk">WEEK ${isoWeek(m)}</div><div class="rng">${f(m)} – ${f(e)} ${e.slice(0,4)}</div></div><button class="wbtn" data-act="wk" data-d="-7" aria-label="Vorige week">‹</button><button class="wbtn" data-act="wk" data-d="7" aria-label="Volgende week">›</button></div>`}
+const wd=iso=>new Date(iso+"T12:00:00").toLocaleDateString("nl-NL",{weekday:"short"}).replace(".","");
+const hrs=m=>(m/60).toFixed(2);
+const workOf=e=>(e&&(e.open||e.close))?span(e.in||e.open,e.out||e.close):0;
+const dayOn=iso=>S.days.find(d=>d.date===iso);
+const undated=()=>sortedDays(1).filter(d=>!d.date);
+function needName(){return`<div class="empty"><h3>Wie ben je?</h3>Kies je naam, dan zie je hier je eigen uren.<div style="margin-top:12px"><button class="btn primary" data-act="who" style="flex:none">Naam kiezen</button></div></div>`}
+function vMijn(){
+  if(S.sub==="tot")return`<button class="back" data-act="subback">‹ Terug naar mijn week</button>`+vTotals(allPeople());
+  const me=myName();if(!me)return needName();
+  const TA=turnaround(me),t=todayISO();let h=weekNav()+reminderBanner(),tot=0,ot=0,done=0,planned=0;
+  for(const iso of weekDates()){const d=dayOn(iso),inTeam=d&&teamOf(d).includes(me),e=inTeam?(d.hours||{})[me]||{}:null,w=workOf(e);
+    const n=new Date(iso+"T12:00:00").getDate(),head=`<span><div class="dn">${n}</div><div class="dw">${wd(iso)}</div></span>`;
+    if(!inTeam){h+=`<div class="drow off ${iso===t?"today":""}">${head}<span class="tm">${d?"niet ingepland":"geen draaidag"}</span><span class="hr">–<small>uur</small></span></div>`;continue}
+    planned++;if(w){done++;tot+=w;ot+=otOf(e)}
+    const c=calc(e),badges=`${otOf(e)?`<span class="b ot">OT ${fmtDur(otOf(e))}</span>`:""}${e.pre?`<span class="b">Pre ${fmtDur(e.pre)}</span>`:""}${travelOf(e)?`<span class="b dr">Reis ${fmtDur(travelOf(e))}</span>`:""}${TA[d.id]?`<span class="b" style="color:var(--red)">TA ${fmtDur(TA[d.id])}</span>`:""}${c.pd?`<span class="b">PD ${eur(c.pd)}</span>`:""}`;
+    h+=`<button class="drow ${w?"":"todo"} ${iso===t?"today":""}" data-act="hour" data-day="${d.id}" data-p="${esc(me)}">${head}<span class="tm">${w?`${esc(e.open||e.in||"")}–${esc(e.close||e.out||"")}`:"nog invullen"}<small>DD${esc(d.n)}${d.location?" · "+esc(d.location):""}</small>${badges?`<span class="badges">${badges}</span>`:""}</span><span class="hr">${w?hrs(w):"–"}<small>uur</small></span></button>`}
+  h+=`<div class="totcard"><div><div class="k">Totaal deze week</div><div class="big">${hrs(tot)}<small>u</small></div></div><div class="side"><span>${done} / ${planned} dagen</span><span>overuren ${fmtDur(ot)||"0:00"}</span><span>gem. ${done?hrs(tot/done):"0.00"} u/dag</span></div></div>`;
+  h+=`<button class="linkbtn" data-act="subtot"><span>Mijn totalen &amp; factuur</span><span>›</span></button>`;
+  const ud=undated().filter(d=>teamOf(d).includes(me));if(ud.length)h+=`<div class="sect">Dagen zonder datum</div><div class="crewpick">${ud.map(d=>`<button class="chip" data-act="hour" data-day="${d.id}" data-p="${esc(me)}">DD${esc(d.n)}</button>`).join("")}</div>`;
+  return h}
+function vTeam(){
+  if(S.sub==="tot")return`<button class="back" data-act="subback">‹ Terug naar team</button>`+vTotals(allPeople());
+  const dates=weekDates(),people=allPeople(),me=myName(),t=todayISO();let h=weekNav();
+  h+=`<div class="sect">Uren week ${isoWeek(curWeek())}</div><div class="tablewrap"><table class="mtx"><thead><tr><th>Crew</th>${dates.map(x=>`<th class="c">${wd(x)}<small>${new Date(x+"T12:00:00").getDate()}</small></th>`).join("")}<th class="c">Tot.</th></tr></thead><tbody>`;
+  const col=dates.map(()=>0);
+  for(const p of people){let sum=0;h+=`<tr class="${p===me?"me":""}"><td>${esc(p)}</td>${dates.map((x,i)=>{const d=dayOn(x);if(!d||!teamOf(d).includes(p))return`<td class="c nil">·</td>`;const w=workOf((d.hours||{})[p]);sum+=w;col[i]+=w;return`<td class="c"><button data-act="hour" data-day="${d.id}" data-p="${esc(p)}">${w?hrs(w):`<span style="color:var(--amber)">?</span>`}</button></td>`}).join("")}<td class="c"><b>${sum?hrs(sum):"–"}</b></td></tr>`}
+  h+=`</tbody><tfoot><tr><td>Totaal</td>${col.map(v=>`<td class="c">${v?hrs(v):""}</td>`).join("")}<td class="c">${hrs(col.reduce((a,b)=>a+b,0))}</td></tr></tfoot></table></div><p class="byline">? = nog niet ingevuld. Tik op een vakje om de uren te openen.</p>`;
+  h+=`<button class="linkbtn" data-act="subtot" style="margin-top:12px"><span>Totalen per crewlid</span><span>›</span></button>`;
+  const days=dates.map(dayOn).filter(Boolean);if(days.length)h+=`<div class="sect">Details per dag</div>`+dayBlocks(days.reverse());
+  return h}
+function vPlanning(){
+  const dates=weekDates(),people=allPeople(),me=myName();let h=weekNav();
+  h+=`<div class="sect">Wie staat wanneer</div><div class="tablewrap"><table class="mtx"><thead><tr><th>Dag</th>${people.map(p=>`<th class="c">${esc(p)}<small>${esc(((job()?.roles?.[p]||"").split("·")[1]||"").trim())}</small></th>`).join("")}</tr></thead><tbody>`;
+  for(const x of dates){const d=dayOn(x),we=[0,6].includes(new Date(x+"T12:00:00").getDay());h+=`<tr class="${we?"we":""}"><td>${d?`<button data-act="day" data-day="${d.id}" style="border:0;background:none;padding:0;text-align:left;color:inherit"><b style="color:var(--amber)">${wd(x)} ${new Date(x+"T12:00:00").getDate()}</b><br><small style="color:var(--muted)">DD${esc(d.n)}${d.location?" · "+esc(d.location):""}</small></button>`:`<span style="color:var(--dim)">${wd(x)} ${new Date(x+"T12:00:00").getDate()}</span>`}</td>${people.map(p=>`<td class="c">${d&&teamOf(d).includes(p)?'<span class="dot" aria-label="ingepland"></span>':""}</td>`).join("")}</tr>`}
+  h+=`</tbody></table></div><p class="byline">Bolletje = ingepland. Weekenden zijn gearceerd. Tik op een dag voor de details.</p>`;
+  if(S.canWrite)h+=`<button class="add" data-act="addday" style="margin:12px 0">+ Draaidag toevoegen</button>`;
+  for(const d of dates.map(dayOn).filter(Boolean)){
+    h+=`<section class="block"><button class="cardbtn" data-act="day" data-day="${d.id}"><div class="bhead"><span class="dd">DD${esc(d.n)}</span><span class="bmeta"><b>${esc(fmtDate(d.date))}</b> · ${esc(d.location||"Locatie?")}</span></div>
+    <div class="plan">${kv("Draaitijd",d.start||d.end?`${d.start||"–"}–${d.end||"–"}`:"",1)}${kv("Pre call",fmtDur(d.precall),1)}${kv("Opruimtijd",fmtDur(d.cleanup),1)}${kv("Transport",d.transport)}${kv("Team",(d.team||[]).join(", "),0,1)}${kv("Extra equipment",d.equipment,0,1)}${kv("Notities",d.notes,0,1)}</div></button></section>`}
+  const ud=undated();if(ud.length)h+=`<div class="sect">Zonder datum</div><div class="crewpick">${ud.map(d=>`<button class="chip" data-act="day" data-day="${d.id}">DD${esc(d.n)}</button>`).join("")}</div>`;
+  return h}
+function vPlanEmpty(){const rest=sortedDays(1).filter(d=>!(d.date||d.location||d.start));if(!rest.length)return"";return`<p class="sub">Zonder planning</p><div class="crewpick">${rest.map(d=>`<button class="chip" data-act="day" data-day="${d.id}">DD${esc(d.n)}</button>`).join("")}</div>`}
+const kv=(k,v,mono,wide)=>v?`<div class="kv ${wide?"wide":""}"><div class="k">${k}</div><div class="v ${mono?"mono":""}">${esc(v)}</div></div>`:"";
+
+function vDefects(){
+  const list=[...S.defects].sort((a,b)=>(a.status==="opgelost")-(b.status==="opgelost")||(b.at||0)-(a.at||0));const open=list.filter(d=>d.status!=="opgelost").length;
+  let h=S.canWrite?`<button class="btn primary" data-act="defnew" style="width:100%;padding:15px;font-size:17px;margin-bottom:14px">Defect melden</button>`:"";
+  h+=`<div class="sect">Defecten · ${open} open</div>`;
+  if(!list.length)return h+`<div class="empty" style="padding:22px 16px">Geen defecten gemeld. Is er iets kapot, meld het hier met een foto, dan weet iedereen ervan.</div>`;
+  return h+`<div class="block">${list.map(d=>`<button class="irow" data-act="defopen" data-id="${esc(d.id)}" style="width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;grid-template-columns:auto 1fr auto">
+    ${d.photo?`<img ${imgAttr(d.photo)} alt="" width="48" height="48" style="width:48px;height:48px;object-fit:cover;border-radius:8px">`:`<span class="dot" style="--c:${d.status==="opgelost"?"var(--green)":"var(--red)"};width:12px;height:12px"></span>`}
+    <span style="min-width:0"><b style="${d.status==="opgelost"?"color:var(--dim);text-decoration:line-through":""}">${esc(d.item||"Onbekend")}</b><div class="s" style="font-size:13.5px;color:var(--muted);overflow-wrap:anywhere">${esc(d.problem||"")}</div><div style="font-size:12px;color:var(--dim)">${esc(d.who||"")}${d.at?" · "+new Date(d.at).toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):""}${d.where?" · "+esc(d.where):""}</div></span>
+    <span class="b" style="${d.status==="opgelost"?"color:var(--green)":"color:var(--red)"}">${d.status==="opgelost"?"opgelost":d.status==="gemeld"?"doorgegeven":"open"}</span></button>`).join("")}</div>`}
+async function storePhoto(blob){const url=await new Promise((r,j)=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=j;fr.readAsDataURL(blob)});const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const {error}=await SB.from("photos").insert({id,data:url});if(error)throw error;PHOTO[id]=url;return{id,url:"photo:"+id}}
+const PHOTO={};const BLANK="data:image/gif;base64,R0lGODlhAQABAAAAACw=";
+const imgAttr=u=>{u=String(u||"");if(u.startsWith("photo:")){const id=u.slice(6);return`src="${PHOTO[id]||BLANK}" data-pid="${esc(id)}"`}return`src="${esc(u)}"`};
+async function hydratePhotos(){const els=[...document.querySelectorAll("img[data-pid]")];const need=[...new Set(els.map(e=>e.dataset.pid).filter(id=>!PHOTO[id]))];
+  if(need.length&&SB){const {data}=await SB.from("photos").select("id,data").in("id",need);(data||[]).forEach(r=>PHOTO[r.id]=r.data)}
+  els.forEach(e=>{const u=PHOTO[e.dataset.pid];if(u&&e.src!==u)e.src=u})}
+async function shrinkPhoto(file){const url=URL.createObjectURL(file);try{const img=await new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=url});const k=Math.min(1,1280/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,"image/jpeg",.72))}finally{URL.revokeObjectURL(url)}}
+function defSheet(id){const d=id?S.defects.find(x=>x.id===id):null;
+  openSheet({title:d?"Defect":"Defect melden",values:d||{status:"open",who:myName()},delLabel:"Melding verwijderen",
+    fields:[{key:"item",label:"Wat is kapot",full:1,ph:"bijv. SkyPanel S60 #3, 32A haspel"},{key:"problem",label:"Wat is er mis",type:"textarea",full:1,ph:"bijv. flikkert op 100%, stekker gesmolten"},{key:"where",label:"Waar ligt het nu",full:1,ph:"bijv. lichtbus, apart gezet in kist 4"},{key:"status",label:"Status",type:"select",options:["open","gemeld","opgelost"],full:1},{key:"who",label:"Gemeld door",full:1}],
+    async onSave(v){if(!v.item){toast("Vul in wat er kapot is");return false}
+      const f=$("defphoto")?.files?.[0];let photo=d?.photo||"",photoId=d?.photoId||"";
+      if(f){try{const r=await storePhoto(await shrinkPhoto(f));photo=r.url;photoId=r.id}catch(_){toast("Foto uploaden lukte niet")}}
+      const body={...v,photo,photoId,by:d?.by||S.uid||"",at:d?.at||Date.now(),updatedAt:Date.now()};
+      if(d)return write(()=>S.db.doc(`jobs/${S.jobId}/defects/${d.id}`).update(body));
+      return write(()=>S.db.collection(`jobs/${S.jobId}/defects`).add(body),"Defect gemeld")},
+    onDelete:d?async()=>write(()=>S.db.doc(`jobs/${S.jobId}/defects/${d.id}`).delete(),"Verwijderd"):null,
+    after(){const f=$("sform");if(f&&S.canWrite)f.insertAdjacentHTML("beforeend",`<div class="field full"><label for="defphoto">Foto</label>${d?.photo?`<img ${imgAttr(d.photo)} alt="Foto van het defect" style="border-radius:10px;max-height:240px;object-fit:contain">`:""}<input id="defphoto" type="file" accept="image/*"></div>`);else if(d?.photo&&f)f.insertAdjacentHTML("beforeend",`<img ${imgAttr(d.photo)} alt="Foto van het defect" style="grid-column:1/-1;border-radius:10px">`)}})}
+function vExp(){
+  const groups={};S.items.forEach(i=>{(groups[i.cat||"Overig"]??=[]).push(i)});
+  const order=[...Object.keys(CATS),...Object.keys(groups).filter(c=>!CATS[c])].filter(c=>groups[c]);
+  const todo=S.items.filter(i=>!i.done).length;
+  let h=vDefects()+`<div class="sect">Expendables · ${todo} nog aan te vullen</div>`;
+  if(S.canWrite)h+=`<button class="add" data-act="additem" style="margin-bottom:12px">+ Expendable toevoegen</button>`;
+  if(!S.items.length)return h+`<div class="empty"><h3>Lijst is leeg</h3>Houd hier tape, filters, blackwrap en hazer fluid bij.</div>`;
+  for(const c of order){
+    const list=groups[c].sort((a,b)=>(a.order||0)-(b.order||0));
+    h+=`<section class="block"><div class="bhead"><span class="cat" style="--c:${CATS[c]||"var(--grey)"}"><span class="dot"></span>${esc(c)}</span></div>${list.map(i=>`<div class="irow ${i.done?"done":""}"><button class="check" data-act="toggle" data-id="${i.id}" aria-pressed="${!!i.done}" aria-label="Aangevuld">${i.done?'<svg width="14" height="14" viewBox="0 0 14 14"><path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':""}</button><button class="iname" data-act="item" data-id="${i.id}">${esc(i.name)}</button><span class="iqty">${esc(i.qty||"")}${i.date?`<br>${esc(i.date)}`:""}</span></div>`).join("")}</section>`;
+  }
+  return h+`<p class="byline">Vinkje = aangevuld.</p>`;
+}
+const PSECT=[["bus","Plek lichtbus"],["kast","Stoppenkast / groepenkast"],["stroom","Stopcontacten & krachtstroom"],["set","Set & lichtplekken"],["overig","Overig"]];
+const POWER=[["p230","230V stopcontacten"],["cee16","16A CEE (blauw)"],["cee32","32A krachtstroom (rood, 5-polig)"],["cee63","63A krachtstroom"],["cee125","125A krachtstroom"]];
+const rcById=id=>S.recce.find(x=>x.id===id);
+function powerChips(r){return POWER.filter(([k])=>r[k]).map(([k,l])=>`<span class="b" style="color:var(--fg)">${esc(l.split(" (")[0])}: ${esc(r[k])}</span>`).join("")+(r.genny&&r.genny!=="Nee"?`<span class="b ot">Aggregaat: ${esc(r.genny)}</span>`:"")}
+function vRecce(){
+  if(S.rc){const r=rcById(S.rc);if(r)return vRecceDetail(r);S.rc=null}
+  let h=S.canWrite?`<button class="btn primary" data-act="addrecce" style="width:100%;padding:15px;font-size:17px;margin-bottom:14px">+ Locatie toevoegen</button>`:"";
+  if(!S.recce.length)return h+`<div class="empty"><h3>Nog geen locaties</h3>Leg per locatie vast waar de lichtbus kan staan, waar de stoppenkast zit en welke stroom er is, met foto's.</div>`;
+  const list=[...S.recce].sort((a,b)=>(a.order||0)-(b.order||0));
+  return h+`<div class="cslist">${list.map(r=>{const ph=PSECT.map(([k])=>(r.photos||{})[k]||[]).flat();return`<button class="cscard" data-act="rcopen" data-id="${esc(r.id)}" style="grid-template-columns:${ph[0]?"64px ":""}1fr auto">${ph[0]?`<img ${imgAttr(ph[0].url)} alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px">`:""}<span style="min-width:0"><span class="loc">${esc(r.location||"Locatie")}</span><br><span class="when">${esc(r.address||"Geen adres")}</span>${powerChips(r)?`<span class="badges" style="justify-content:flex-start;margin-top:6px">${powerChips(r)}</span>`:""}</span><span class="when">${ph.length} foto${ph.length===1?"":"'s"} ›</span></button>`}).join("")}</div>`}
+function vRecceDetail(r){
+  const P=r.photos||{};
+  let h=`<button class="back" data-act="rcback">‹ Alle locaties</button><div class="cshero"><div class="eyebrow">Locatie</div><h1>${esc(r.location||"Locatie")}</h1>${r.address?`<div style="color:var(--muted);margin-top:4px">${esc(r.address)}</div>`:""}</div>
+  <div class="actions">${S.canWrite?`<button class="btn" data-act="rcedit">Gegevens bewerken</button>`:""}</div>`;
+  if(r.address){h+=`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>Navigatie</span><span class="spacer"></span><label class="mepick" style="font-size:13px">App <select id="navsel">${Object.entries(NAV).map(([k,v])=>`<option value="${k}" ${k===navApp()?"selected":""}>${v[0]}</option>`).join("")}</select></label></div><div class="navgrid">${navCard("Locatie","",r.location||"Locatie",r.address)}${r.busAddress&&r.busAddress!==r.address?navCard("Lichtbus","",r.busSpot||"Plek lichtbus",r.busAddress):""}</div></section>`}
+  const pw=POWER.filter(([k])=>r[k]);
+  h+=`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>Stroom</span></div><div class="plan">${pw.map(([k,l])=>kv(l,r[k],0,1)).join("")}${kv("Stoppenkast",r.kast,0,1)}${kv("Afstand tot set",r.dist?r.dist+" m":"",1)}${kv("Aggregaat nodig",r.genny&&r.genny!=="Nee"?r.genny:"",0,1)}${kv("Opmerkingen stroom",r.power,0,1)}${!pw.length&&!r.kast&&!r.power?`<div class="kv wide"><div class="v" style="color:var(--muted)">Nog geen stroomgegevens. Tik op Gegevens bewerken.</div></div>`:""}</div></section>`;
+  h+=`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>Lichtbus</span></div><div class="plan">${kv("Plek lichtbus",r.busSpot||r.bus,0,1)}${kv("Hoogte / toegang",r.access,0,1)}${!(r.busSpot||r.bus||r.access)?`<div class="kv wide"><div class="v" style="color:var(--muted)">Nog niet ingevuld.</div></div>`:""}</div></section>`;
+  for(const [k,l] of PSECT){const arr=P[k]||[];
+    h+=`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>${l}</span><span class="spacer"></span>${S.canWrite?`<label class="btn" style="min-height:40px;padding:8px 14px;cursor:pointer">+ Foto<input type="file" accept="image/*" multiple data-photo="${k}" hidden></label>`:""}</div>${arr.length?`<div class="pgrid">${arr.map((ph,i)=>`<button class="pthumb" data-act="rcphoto" data-k="${k}" data-i="${i}"><img ${imgAttr(ph.url)} alt="${esc(l)} foto ${i+1}" loading="lazy">${ph.note?`<span>${esc(ph.note)}</span>`:""}</button>`).join("")}</div>`:`<div style="padding:12px;color:var(--dim);font-size:14px">Nog geen foto's.</div>`}</section>`}
+  h+=sec2("Benodigdheden",r.needs)+sec2("Notities",r.notes)+sec2("Contact op locatie",r.contact);
+  return h}
+const sec2=(t,v)=>v?`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>${t}</span></div><div class="ltxt">${esc(v)}</div></section>`:"";
+async function addReccePhotos(k,files){const r=rcById(S.rc);if(!r||!files.length)return;
+  toast(`Foto${files.length>1?"'s":""} uploaden…`);const added=[];
+  for(const f of files){try{const up=await storePhoto(await shrinkPhoto(f));added.push({url:up.url,id:up.id,by:myName()||"",at:Date.now(),note:""})}catch(_){toast("Een foto uploaden lukte niet")}}
+  if(!added.length)return;const cur=(rcById(S.rc)?.photos||{})[k]||[];
+  await write(()=>S.db.doc(`jobs/${S.jobId}/recce/${r.id}`).update({photos:{[k]:[...cur,...added]}}),`${added.length} foto${added.length>1?"'s":""} toegevoegd`)}
+function reccePhotoSheet(k,i){const r=rcById(S.rc);const arr=(r?.photos||{})[k]||[];const ph=arr[i];if(!ph)return;const lbl=(PSECT.find(x=>x[0]===k)||[,""])[1];
+  openSheet({title:lbl,html:`<img ${imgAttr(ph.url)} alt="${esc(lbl)}" style="width:100%;border-radius:12px;max-height:60vh;object-fit:contain;background:#000">${S.canWrite?`<div class="field" style="margin-top:12px"><label for="phnote">Bijschrift</label><input id="phnote" value="${esc(ph.note||"")}" placeholder="bijv. 32A rood, achter de keukendeur"></div>`:ph.note?`<p>${esc(ph.note)}</p>`:""}<p class="byline">${esc(ph.by||"")}${ph.at?" · "+new Date(ph.at).toLocaleDateString("nl-NL",{day:"numeric",month:"short"}):""}</p>
+  <div class="sfoot">${S.canWrite?`<button class="btn primary" data-act="phsave" data-k="${k}" data-i="${i}">Opslaan</button>`:""}<button class="btn" data-act="close">Sluiten</button>${S.canWrite?`<button class="btn danger" data-act="phdel" data-k="${k}" data-i="${i}">Verwijderen</button>`:""}</div>`})}
+async function reccePhotoUpdate(k,i,del){const r=rcById(S.rc);const arr=[...((r?.photos||{})[k]||[])];if(!arr[i])return;if(del)arr.splice(i,1);else arr[i]={...arr[i],note:($("phnote")?.value||"").trim()};
+  if(await write(()=>S.db.doc(`jobs/${S.jobId}/recce/${r.id}`).update({photos:{[k]:arr}}),del?"Foto verwijderd":"Opgeslagen"))closeSheet()}
+/* ---------- sheet ---------- */
+const DUR=Array.from({length:49},(_,i)=>i*15);
+function fieldHTML(f,v){
+  const id="f_"+f.key,lab=`<label for="${id}">${esc(f.label)}</label>`,cls=`field ${f.full?"full":""}`;
+  if(f.type==="textarea")return`<div class="${cls}">${lab}<textarea id="${id}">${esc(v)}</textarea></div>`;
+  if(f.type==="dur"){const auto=f.auto&&(v===""||v==null);return`<div class="${cls}">${lab}<select id="${id}">${f.auto?`<option value="" ${auto?"selected":""}>Automatisch${f.autoVal?" ("+f.autoVal+")":""}</option>`:""}${DUR.map(m=>`<option value="${m}" ${!auto&&(+v||0)===m?"selected":""}>${m?fmtDur(m):"geen"}</option>`).join("")}</select></div>`}
+  if(f.type==="check")return`<div class="${cls}" style="align-self:end"><label class="ck"><input id="${id}" type="checkbox" ${v?"checked":""}> ${esc(f.label)}</label></div>`;
+  if(f.type==="select")return`<div class="${cls}">${lab}<select id="${id}">${f.options.map(o=>`<option ${o===v?"selected":""}>${esc(o)}</option>`).join("")}</select></div>`;
+  if(f.type==="crew")return`<div class="${cls}"><label>${esc(f.label)}</label><div class="crewpick" id="${id}">${f.options.map(o=>`<button type="button" class="chip" data-crew="${esc(o)}" aria-pressed="${(v||[]).includes(o)}">${esc(o)}</button>`).join("")}</div></div>`;
+  return`<div class="${cls}">${lab}<input id="${id}" type="${f.type||"text"}" ${f.type==="number"?'inputmode="numeric"':""} value="${esc(v)}" ${f.ph?`placeholder="${esc(f.ph)}"`:""}></div>`;
+}
+function readField(f){
+  const el=$("f_"+f.key);if(!el)return undefined;
+  if(f.type==="check")return el.checked;
+  if(f.type==="crew")return[...el.querySelectorAll("[data-crew]")].filter(b=>b.getAttribute("aria-pressed")==="true").map(b=>b.dataset.crew);
+  if(f.type==="dur"||f.type==="number")return el.value===""?"":+el.value;
+  return el.value.trim();
+}
+function openSheet(o){S.sheet=o;const ro=!S.canWrite||!!o.readonly;
+  $("sheetroot").innerHTML=`<div class="scrim" data-act="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(o.title)}"><h2>${esc(o.title)}</h2>${o.html||`<form id="sform" class="fgrid">${o.fields.map(f=>fieldHTML(f,(o.values||{})[f.key])).join("")}</form>`}
+  ${o.fields?`<div class="sfoot">${ro?"":`<button class="btn primary" data-act="save">Opslaan</button>`}<button class="btn" data-act="close">${ro?"Sluiten":"Annuleren"}</button>${o.onDelete&&!ro?`<button class="btn danger" data-act="del">${esc(o.delLabel||"Verwijderen")}</button>`:""}</div>`:""}<div class="byline" id="byline"></div></div></div>`;
+  if(ro)$("sheetroot").querySelectorAll("input,select,textarea").forEach(e=>e.disabled=true);
+  o.after&&o.after();hydratePhotos();
+}
+function closeSheet(){S.sheet=null;$("sheetroot").innerHTML=""}
+
+function hourSheet(dayId,p){
+  const d=S.days.find(x=>x.id===dayId);if(!d)return;const e=(d.hours||{})[p]||{};
+  const cs=d.date?S.sheets.find(x=>x.date===d.date):null;const pls=(cs?.prelights||[]);const ro=!canEditRow(p);const plAuto=e.pre==null||e.pre===""?plDur(cs,p):null;
+  openSheet({title:`${p} · DD${d.n}`,readonly:ro,values:{kmType:"Met materiaal",perdiem:"Geen",...e,travel:e.travel??e.drive,...(plAuto?{pre:plAuto}:{})},delLabel:"Uit deze dag halen",
+    fields:[{key:"in",label:"Loods in",type:"time"},{key:"out",label:"Loods uit",type:"time"},{key:"open",label:"Klep open",type:"time"},{key:"close",label:"Klep dicht",type:"time"},{key:"pre",label:"Pre-light",type:"dur"},{key:"ot",label:"Overuren (150%)",type:"dur",auto:1,autoVal:fmtDur(autoOT(e))||"0:00"},{key:"travel",label:"Reistijd standplaats–set",type:"dur"},{key:"driver",label:"Ik rijd de lichtbus",type:"check"},{key:"km",label:"Gereden km",type:"number"},{key:"kmType",label:"Km soort",type:"select",options:["Met materiaal","Personen"]},{key:"park",label:"Parkeren (€)",type:"number"},{key:"perdiem",label:"Per diem",type:"select",options:PD,full:1},{key:"note",label:"Beschrijving",type:"textarea",full:1}],
+    async onSave(v){const entry={...v,by:S.uid||"",byName:myName()||"",at:Date.now()};return write(()=>S.db.doc(`jobs/${S.jobId}/days/${dayId}`).update({hours:{[p]:entry}}))},
+    async onDelete(){const body=JSON.parse(JSON.stringify(d));delete body.id;delete body.hours?.[p];body.team=(body.team||[]).filter(x=>x!==p);return write(()=>S.db.doc(`jobs/${S.jobId}/days/${dayId}`).set(body),"Verwijderd")},
+    async after(){const by=$("byline");if(by&&ro&&S.canWrite)by.insertAdjacentHTML("beforebegin",`<div class="byline">${myName()?"Alleen "+esc(p)+" zelf, Michel en Justin kunnen deze uren aanpassen.":"Kies eerst bovenaan bij \"Ik ben\" je naam om je uren in te vullen."}</div>`);if(by&&plAuto)by.insertAdjacentHTML("beforebegin",`<div class="byline" style="color:var(--amber)">Pre-light van ${fmtDur(plAuto)} overgenomen van de callsheet.</div>`);if(by&&pls.length)by.insertAdjacentHTML("beforebegin",`<div class="byline" style="color:var(--amber)">Pre-light op de callsheet: ${esc(pls.map(x=>[x.time,x.place,x.who].filter(Boolean).join(" ")).join("; "))}</div>`);else if(by&&cs)by.insertAdjacentHTML("beforebegin",`<div class="byline">Geen pre-light op de callsheet. Pre-calls die er niet op staan worden niet vergoed.</div>`);if(e.byName){const b=$("byline");if(b)b.textContent=`Laatst aangepast door ${e.byName}${e.at?" · "+new Date(e.at).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):""}`}else if(e.by&&S.user?.profiles){try{const ps=await S.user.profiles([e.by]);const n=ps?.[e.by]?.name||"iemand";const t=e.at?new Date(e.at).toLocaleString("nl-NL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";const b=$("byline");if(b)b.textContent=`Laatst aangepast door ${n}${t?" · "+t:""}`}catch(_){}}}
+  });
+}
+function daySheet(dayId){
+  const d=dayId?S.days.find(x=>x.id===dayId):null;
+  const next=Math.max(0,...S.days.map(x=>x.n||0))+1;
+  const v=d?{...d}:{n:next,team:crew().slice()};
+  const opts=[...new Set([...crew(),...(v.team||[])])];
+  openSheet({title:d?`DD${d.n} planning`:"Nieuwe draaidag",values:v,
+    fields:[{key:"n",label:"Draaidag nr",type:"number"},{key:"date",label:"Datum",type:"date"},{key:"location",label:"Locatie",full:1},{key:"start",label:"Begin",type:"time"},{key:"end",label:"Einde",type:"time"},{key:"precall",label:"Pre call",type:"dur"},{key:"cleanup",label:"Opruimtijd (geschat)",type:"dur"},{key:"team",label:"Team",type:"crew",options:opts,full:1},{key:"transport",label:"Transport",full:1,ph:"bijv. Justin bus"},{key:"equipment",label:"Extra equipment",type:"textarea",full:1},{key:"notes",label:"Notities",type:"textarea",full:1}],
+    async onSave(val){const n=+val.n||next;
+      if(d){if(n!==d.n&&S.days.some(x=>x.n===n&&x.id!==d.id)){toast(`DD${n} bestaat al`);return false}return write(()=>S.db.doc(`jobs/${S.jobId}/days/${d.id}`).update({...val,n}))}
+      if(S.days.some(x=>x.n===n)){toast(`DD${n} bestaat al`);return false}
+      return write(()=>S.db.doc(`jobs/${S.jobId}/days/${ddId(n)}`).set({...val,n,hours:{}}),`DD${n} toegevoegd`)},
+    onDelete:d?async()=>write(()=>S.db.doc(`jobs/${S.jobId}/days/${d.id}`).delete(),"Draaidag verwijderd"):null,delLabel:"Dag verwijderen"
+  });
+}
+function addPersonSheet(dayId){
+  const d=S.days.find(x=>x.id===dayId);if(!d)return;const t=teamOf(d);const opts=crew().filter(p=>!t.includes(p));
+  openSheet({title:`Crew bij DD${d.n}`,values:{},fields:[...(opts.length?[{key:"pick",label:"Kies",type:"crew",options:opts,full:1}]:[]),{key:"other",label:"Of een andere naam",full:1,ph:"bijv. Yannick"}],
+    async onSave(v){const names=[...(v.pick||[]),...(v.other?[v.other]:[])].filter(n=>n&&!t.includes(n));if(!names.length){closeSheet();return false}
+      const hours={};names.forEach(n=>hours[n]={});return write(()=>S.db.doc(`jobs/${S.jobId}/days/${dayId}`).update({team:[...(d.team||[]),...names],hours}))}});
+}
+function itemSheet(id){
+  const i=id?S.items.find(x=>x.id===id):null;
+  openSheet({title:i?i.name:"Nieuwe expendable",values:i||{cat:"Gaffertape"},
+    fields:[{key:"cat",label:"Soort",type:"select",options:Object.keys(CATS),full:1},{key:"name",label:"Wat",full:1,ph:"bijv. Zwart 50mm"},{key:"qty",label:"Aantal",ph:"bijv. 1/2 rol"},{key:"date",label:"Datum",ph:"01-03"}],
+    async onSave(v){if(!v.name){toast("Vul in wat het is");return false}
+      if(i)return write(()=>S.db.doc(`jobs/${S.jobId}/items/${i.id}`).update(v));
+      return write(()=>S.db.collection(`jobs/${S.jobId}/items`).add({...v,done:false,order:Date.now()}),"Toegevoegd")},
+    onDelete:i?async()=>write(()=>S.db.doc(`jobs/${S.jobId}/items/${i.id}`).delete(),"Verwijderd"):null});
+}
+function recceSheet(id){
+  const r=id?rcById(id):null;
+  openSheet({title:r?r.location||"Locatie":"Nieuwe locatie",values:r?{...r,busSpot:r.busSpot||r.bus}:{location:`Locatie ${S.recce.length+1}`,genny:"Nee"},
+    fields:[{key:"location",label:"Naam locatie",full:1},{key:"address",label:"Adres",full:1},
+      {key:"busSpot",label:"Plek lichtbus",type:"textarea",full:1,ph:"bijv. op het grind naast de schuur, laadklep richting deur"},{key:"busAddress",label:"Adres lichtbus (als anders)",full:1},{key:"access",label:"Hoogte / toegang",full:1,ph:"bijv. poort 2,80 m, smal pad"},
+      {key:"p230",label:"230V stopcontacten",ph:"bijv. 6x, 2 groepen"},{key:"cee16",label:"16A CEE blauw",ph:"bijv. 1x buiten"},{key:"cee32",label:"32A krachtstroom",ph:"bijv. 1x in schuur"},{key:"cee63",label:"63A krachtstroom",ph:"aantal / waar"},{key:"cee125",label:"125A krachtstroom",ph:"aantal / waar"},{key:"dist",label:"Afstand tot set (m)",type:"number"},
+      {key:"kast",label:"Stoppenkast",type:"textarea",full:1,ph:"bijv. meterkast in hal, hoofdzekering 3x35A, 8 groepen van 16A"},{key:"genny",label:"Aggregaat nodig",type:"select",options:["Nee","Ja","Misschien"],full:1},{key:"power",label:"Opmerkingen stroom",type:"textarea",full:1},
+      {key:"needs",label:"Benodigdheden",type:"textarea",full:1},{key:"contact",label:"Contact op locatie",full:1,ph:"naam + telefoon"},{key:"notes",label:"Notities",type:"textarea",full:1}],
+    async onSave(v){if(r)return write(()=>S.db.doc(`jobs/${S.jobId}/recce/${r.id}`).update(v));const ref=S.db.collection(`jobs/${S.jobId}/recce`).doc();const ok=await write(()=>ref.set({...v,photos:{},order:Date.now()}),"Locatie toegevoegd");if(ok){S.rc=ref.id;setTimeout(render,50)}return ok},
+    onDelete:r?async()=>{const ok=await write(()=>S.db.doc(`jobs/${S.jobId}/recce/${r.id}`).delete(),"Verwijderd");if(ok){S.rc=null;render()}return ok}:null,delLabel:"Locatie verwijderen"});
+}
+function homeSheet(){openSheet({title:"Op je beginscherm",html:`<div style="display:grid;gap:14px">
+<div style="display:flex;gap:14px;align-items:center"><img src="IMG_2519.png" alt="IJzerman app-icoon" width="80" height="80" style="border-radius:18px;flex:none"><p style="margin:0;color:var(--muted);font-size:15px">Zet de app als echte app op je telefoon.</p></div>
+<ol style="margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px"><li>Open <b>justinjjvandijk-spec.github.io/Sleepers</b> in <b>Safari</b>.</li><li>Tik op het deel-icoon (vierkant met pijl omhoog).</li><li>Kies <b>Zet op beginscherm</b> → <b>Voeg toe</b>.</li><li>Open de app via het icoon en vul één keer de crewcode in.</li></ol>
+<p class="byline" style="margin:0">Android: open de link in Chrome → menu ⋮ → Toevoegen aan startscherm.</p>
+<div class="sfoot" style="margin-top:0"><button class="btn" data-act="close">Sluiten</button></div></div>`})}
+function whoSheet(){const ppl=allPeople(),me=myName(),j=job();
+  openSheet({title:"Wie ben je?",html:`<div class="joblist">${ppl.map(p=>`<button class="jobitem" data-act="pickwho" data-p="${esc(p)}" aria-current="${p===me}"><span><b>${esc(p)}</b><br><small>${esc(j?.roles?.[p]||"")}</small></span>${p===me?"<small>jij</small>":""}</button>`).join("")}</div><p class="byline">Je naam wordt aan je account gekoppeld. Daarna kun je alleen je eigen uren aanpassen.</p><div class="sfoot"><button class="btn" data-act="close">Sluiten</button></div>`})}
+function jobsSheet(){
+  const j=job();
+  const list=S.jobs.map(x=>`<button class="jobitem" data-act="pickjob" data-id="${x.id}" aria-current="${x.id===S.jobId}"><span><b>${esc(x.name)}</b><br><small>${(x.crew||[]).map(p=>esc(x.roles?.[p]||p)).join("<br>")}</small></span>${x.id===S.jobId?'<small>huidig</small>':""}</button>`).join("");
+  openSheet({title:"Klussen",html:`<div class="joblist">${list||'<p class="byline">Nog geen klussen.</p>'}</div>${S.canWrite?`<p class="sub">${j?"Crew van "+esc(j.name):""}</p>${j?`<div class="fgrid"><div class="field full"><label for="f_crew">Vaste crew (komma's)</label><input id="f_crew" value="${esc((j.crew||[]).join(", "))}"></div></div><div class="sfoot"><button class="btn" data-act="savecrew">Crew opslaan</button></div>`:""}
+  <p class="sub" style="margin-top:18px">Nieuwe klus</p><div class="fgrid"><div class="field full"><label for="f_jname">Naam</label><input id="f_jname" placeholder="bijv. NTOO"></div><div class="field full"><label for="f_jcrew">Crew (komma's)</label><input id="f_jcrew" value="${esc((j?.crew||[]).join(", "))}"></div></div><div class="sfoot"><button class="btn primary" data-act="createjob">Klus aanmaken</button><button class="btn" data-act="close">Sluiten</button></div>`:`<div class="sfoot"><button class="btn" data-act="close">Sluiten</button></div>`}<button class="add" data-act="home" style="margin-top:16px">Zet de app op je beginscherm</button>`});
+}
+const splitNames=s=>s.split(",").map(x=>x.trim()).filter(Boolean);
+
+/* ---------- callsheets ---------- */
+const NAV={google:["Google Maps",q=>`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`],waze:["Waze",q=>`https://waze.com/ul?q=${encodeURIComponent(q)}&navigate=yes`],apple:["Kaarten",q=>`https://maps.apple.com/?daddr=${encodeURIComponent(q)}`]};
+const navApp=()=>NAV[S.nav]?S.nav:"google";
+const setAddr=c=>c.setAddress||(c.locations||[])[0]?.address||"";
+const setLabel=c=>c.setName||(c.locations||[])[0]?.name||"Set";
+function navCard(title,sub,place,addr){if(!addr)return"";const a=navApp(),others=Object.keys(NAV).filter(k=>k!==a);
+  return`<div class="navcard"><div class="nk">${title}</div><div class="nv"><b>${esc(place)}</b><div class="s">${esc(addr)}</div>${sub?`<div class="s">${esc(sub)}</div>`:""}</div>
+  <a class="btn primary navgo" href="${esc(NAV[a][1](addr))}" target="_blank" rel="noopener">Navigeer met ${NAV[a][0]}</a>
+  <div class="navalt">${others.map(k=>`<a href="${esc(NAV[k][1](addr))}" target="_blank" rel="noopener">${NAV[k][0]}</a>`).join("")}</div></div>`}
+function navSection(c){const sa=setAddr(c),cp=c.crewParking||"";if(!sa&&!cp)return"";const me=myName();
+  return`<section class="block"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>Rijden &amp; parkeren</span><span class="spacer"></span><label class="mepick" style="font-size:13px">App <select id="navsel">${Object.entries(NAV).map(([k,v])=>`<option value="${k}" ${k===navApp()?"selected":""}>${v[0]}</option>`).join("")}</select></label></div>
+  <div class="navgrid">${navCard("Lichtbus → set","",setLabel(c),sa)}${navCard("Crew parkeren",c.crewParkingNote||"",c.crewParkingName||"Crew parkeerplaats",cp)}${c.techParking&&c.techParking!==sa?navCard("Tech parkeren","","Tech parkeerplaats",c.techParking):""}</div></section>`}
+const sheetById=id=>S.sheets.find(x=>x.id===id);
+const callOf=c=>c.lightCall||c.crewCall||"";
+function vCallsheets(){
+  if(S.cs){const c=sheetById(S.cs);if(c)return vSheet(c);S.cs=null}
+  const list=[...S.sheets].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  let h=reminderBanner()+S.canWrite?`<div class="actions"><button class="btn primary" data-act="csimport">+ Callsheet handmatig</button></div>`:"";
+  if(!list.length)return h+`<div class="empty"><h3>Nog geen callsheets</h3>Callsheets die naar justinjjvandijk@gmail.com gemaild worden, komen hier automatisch binnen, met lichtcall, pre-lights, locaties, parkeren en schema.</div>`;
+  const t=todayISO();
+  return h+`<div class="cslist">${list.map(c=>`<button class="cscard ${c.date===t?"today":""}" data-act="csopen" data-id="${esc(c.id)}"><span class="dd">${c.dd?"DD"+esc(c.dd):"—"}</span><span style="min-width:0"><span class="when">${esc(fmtDate(c.date)||"Geen datum")}${c.date===t?" · vandaag":""}${c.needsPdf?" · PDF ontbreekt":""}${(c.prelights||[]).length?` · ${(c.prelights||[]).length} pre-light`:""}</span><br><span class="loc">${esc((c.locations||[])[0]?.name||c.title||"Callsheet")}</span></span><span class="call"><small>Licht</small>${esc(callOf(c)||"–")}</span></button>`).join("")}</div>`;
+}
+function vSheet(c){
+  const call=callOf(c),ten=call?addMin(call,dayMin()):"";
+  const sec=(title,body,cls="")=>body?`<section class="block ${cls}"><div class="bhead"><span class="cat" style="--c:var(--amber)"><span class="dot"></span>${title}</span></div>${body}</section>`:"";
+  const rows=(arr,fn)=>(arr||[]).filter(Boolean).map(fn).join("");
+  const mine=(c.crewMentions||[]).filter(m=>m&&(m.who||m.note));
+  let h=`<button class="back" data-act="csback">‹ Alle callsheets</button>
+  <div class="cshero"><div class="eyebrow">${c.dd?"DD"+esc(c.dd)+" · ":""}${esc(fmtDate(c.date)||"")}</div><h1>${esc((c.locations||[])[0]?.name||c.title||"Callsheet")}</h1>${c.title&&(c.locations||[])[0]?.name?`<div class="when" style="color:var(--muted);margin-top:4px">${esc(c.title)}</div>`:""}</div>
+  <div class="times4"><div class="key"><div class="k">Licht call</div><div class="v">${esc(call||"–")}</div></div><div><div class="k">${fmtDur(dayMin())} uur tot</div><div class="v">${esc(ten||"–")} <small>daarna 150%</small></div></div>${call?`<div><div class="k">Lunch uiterlijk</div><div class="v">${esc(addMin(call,360))}</div></div>`:""}${c.crewCall&&c.crewCall!==call?`<div><div class="k">Crew call</div><div class="v">${esc(c.crewCall)}</div></div>`:""}${c.shootStart?`<div><div class="k">Draaien</div><div class="v">${esc(c.shootStart)}</div></div>`:""}${c.wrap?`<div><div class="k">Verwacht wrap</div><div class="v">${esc(c.wrap)}</div></div>`:""}${c.sunrise||c.sunset?`<div><div class="k">Zon op / onder</div><div class="v">${esc(c.sunrise||"–")} <small>/</small> ${esc(c.sunset||"–")}</div></div>`:""}</div>
+  ${c.needsPdf?`<div class="banner" style="border-color:rgba(255,122,26,.45)"><b style="color:var(--amber)">Nog niet compleet.</b> Alleen de mailtekst is binnen. De volledige callsheet${c.pdfName?` (${esc(c.pdfName)})`:""} wordt automatisch ingelezen zodra de PDF in Drive staat. Duurt het lang? Stuur de mail met de PDF door naar justinjjvandijk@gmail.com.</div>`:""}
+  <div class="actions"><button class="btn" data-act="cscopy">Kopieer voor WhatsApp</button>${S.canWrite?`<button class="btn" data-act="csedit">Bewerken</button>`:""}</div>`;
+  h+=navSection(c);
+  h+=sec("Pre-lights",(c.prelights||[]).length?rows(c.prelights,p=>`<div class="srow"><span class="t">${esc(p.time||"")}</span><span class="w"><b>${esc(p.place||"")}</b>${p.who?` · ${esc(p.who)}`:""}${p.note?`<div class="s">${esc(p.note)}</div>`:""}</span></div>`)+`<p class="byline" style="padding:0 12px 10px;margin:0">Alleen pre-calls op de callsheet worden vergoed.</p>`:"","pl");
+  h+=sec("Voor de crew",rows(mine,m=>`<div class="srow"><span class="t">${esc(m.who||"")}</span><span class="w">${esc(m.note||"")}</span></div>`));
+  h+=sec("Locaties",rows(c.locations,l=>`<div class="srow" style="grid-template-columns:1fr"><span class="w"><b>${esc(l.name||"")}</b>${l.address?`<div class="s">${esc(l.address)}</div>`:""}${l.power?`<div class="s"><span class="tag">Stroom</span>${esc(l.power)}</div>`:""}${l.parking?`<div class="s"><span class="tag">Parkeren</span>${esc(l.parking)}</div>`:""}${l.note?`<div class="s">${esc(l.note)}</div>`:""}</span></div>`));
+  h+=sec("Draaischema",rows(c.scenes,s=>`<div class="srow"><span class="t">${esc(s.time||"")}</span><span class="w">${s.scene?`<b>Sc ${esc(s.scene)}</b> `:""}${s.ie?`<span class="tag">${esc(s.ie)}</span>`:""}${s.dn?`<span class="tag ${/N|DUSK|DAWN/i.test(s.dn)?"n":""}">${esc(s.dn)}</span>`:""}${esc(s.set||"")}${s.note?`<div class="s">${esc(s.note)}</div>`:""}${s.light?`<div class="s" style="color:var(--amber)">${esc(s.light)}</div>`:""}</span></div>`));
+  h+=sec("Licht &amp; materiaal",c.lightNotes?`<div class="ltxt">${esc(c.lightNotes)}</div>`:"");
+  const misc=[["Weer",c.weather],["Unit base",c.unitBase],["Catering",c.catering],["Overig",c.notes]].filter(x=>x[1]);
+  h+=sec("Praktisch",misc.length?`<div class="plan">${misc.map(([k,v])=>kv(k,v,0,1)).join("")}</div>`:"");
+  h+=sec("Contacten",rows(c.contacts,p=>`<div class="srow" style="grid-template-columns:1fr auto"><span class="w"><b>${esc(p.name||"")}</b><div class="s">${esc(p.role||"")}</div></span><span class="t" style="user-select:all">${esc(p.phone||"")}</span></div>`));
+  if(c.source)h+=`<p class="byline">Bron: ${esc(c.source)}</p>`;
+  return h;
+}
+function waText(c){
+  const call=callOf(c),L=[`*${job()?.name||""} · ${c.dd?"DD"+c.dd+" · ":""}${fmtDate(c.date)||""}*`];
+  if(call)L.push(`Licht call: ${call} (${fmtDur(dayMin())}u tot ${addMin(call,dayMin())})`);
+  if(c.crewCall&&c.crewCall!==call)L.push(`Crew call: ${c.crewCall}`);
+  if(c.wrap)L.push(`Verwacht wrap: ${c.wrap}`);
+  if(setAddr(c))L.push("",`*Lichtbus → set:* ${setLabel(c)}, ${setAddr(c)}`,NAV.google[1](setAddr(c)));
+  if(c.crewParking)L.push("",`*Crew parkeren:* ${c.crewParking}`,NAV.google[1](c.crewParking),`Waze: ${NAV.waze[1](c.crewParking)}`);
+  if((c.prelights||[]).length){L.push("","*Pre-lights*");c.prelights.forEach(p=>L.push(`- ${p.time||""} ${p.place||""}${p.who?" ("+p.who+")":""}${p.note?": "+p.note:""}`))}
+  if((c.locations||[]).length){L.push("","*Locaties*");c.locations.forEach(l=>L.push(`- ${l.name||""}${l.address?", "+l.address:""}${l.power?" · stroom: "+l.power:""}`))}
+  if((c.scenes||[]).length){L.push("","*Draaischema*");c.scenes.forEach(s=>L.push(`- ${s.time||""} ${s.scene?"sc "+s.scene+" ":""}${[s.ie,s.dn].filter(Boolean).join(" ")} ${s.set||""}${s.light?" · "+s.light:""}`))}
+  if(c.lightNotes)L.push("","*Licht*",c.lightNotes);
+  return L.join("\n").replace(/ +/g," ");
+}
+const LISTS={prelights:["time","place","who","note"],locations:["name","address","power","parking","note"],scenes:["time","scene","ie","dn","set","note","light"],crewMentions:["who","note"],contacts:["role","name","phone"]};
+const listToText=(a,k)=>(a||[]).map(o=>k.map(x=>o?.[x]||"").join(" | ")).join("\n");
+const textToList=(t,k)=>String(t||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const p=l.split("|").map(s=>s.trim());const o={};k.forEach((x,i)=>o[x]=p[i]||"");return o});
+function csEditSheet(c){
+  const v={...c};Object.entries(LISTS).forEach(([k,keys])=>v[k]=listToText(c[k],keys));
+  openSheet({title:`Callsheet ${c.dd?"DD"+c.dd:""}`,values:v,delLabel:"Callsheet verwijderen",
+    fields:[{key:"date",label:"Datum",type:"date"},{key:"dd",label:"Draaidag nr",type:"number"},{key:"lightCall",label:"Licht call",type:"time"},{key:"crewCall",label:"Crew call",type:"time"},{key:"shootStart",label:"Draaien",type:"time"},{key:"wrap",label:"Verwacht wrap",type:"time"},{key:"sunrise",label:"Zon op",type:"time"},{key:"sunset",label:"Zon onder",type:"time"},{key:"title",label:"Titel",full:1},
+      {key:"prelights",label:"Pre-lights: tijd | plek | wie | wat",type:"textarea",full:1},{key:"locations",label:"Locaties: naam | adres | stroom | parkeren | notitie",type:"textarea",full:1},{key:"scenes",label:"Schema: tijd | sc | INT/EXT | D/N | set | omschrijving | licht",type:"textarea",full:1},{key:"lightNotes",label:"Licht & materiaal",type:"textarea",full:1},{key:"crewMentions",label:"Voor de crew: naam | wat",type:"textarea",full:1},{key:"weather",label:"Weer",full:1},{key:"setName",label:"Set (naam)",full:1},{key:"setAddress",label:"Set adres (lichtbus)",full:1},{key:"crewParking",label:"Crew parkeren adres",full:1},{key:"crewParkingNote",label:"Crew parkeren opmerking",full:1},{key:"techParking",label:"Tech parkeren adres",full:1},{key:"unitBase",label:"Unit base",full:1},{key:"catering",label:"Catering",full:1},{key:"contacts",label:"Contacten: rol | naam | telefoon",type:"textarea",full:1},{key:"notes",label:"Overig",type:"textarea",full:1}],
+    async onSave(val){Object.entries(LISTS).forEach(([k,keys])=>val[k]=textToList(val[k],keys));val.dd=val.dd===""?null:+val.dd;return write(()=>S.db.doc(`jobs/${S.jobId}/callsheets/${c.id}`).update(val))},
+    async onDelete(){const ok=await write(()=>S.db.doc(`jobs/${S.jobId}/callsheets/${c.id}`).delete(),"Callsheet verwijderd");if(ok){S.cs=null;render()}return ok}
+  });
+}
+function csImportSheet(){
+  openSheet({title:"Callsheet toevoegen",html:`<p style="margin-top:0;color:var(--muted)">Callsheets komen automatisch binnen: elke callsheet die naar <b style="color:var(--fg)">justinjjvandijk@gmail.com</b> gaat, staat binnen een uur in de app, met pre-lights, schema en parkeren.</p>
+  <div class="field"><label for="csnewdate">Of vul er zelf een in. Datum</label><input id="csnewdate" type="date" value="${todayISO()}"></div>
+  <div class="sfoot"><button class="btn primary" data-act="csmanual">Handmatig invullen</button><button class="btn" data-act="close">Annuleren</button></div>`})}
+async function pdfInput(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;let text="";const n=Math.min(pdf.numPages,12);
+  for(let i=1;i<=n;i++){const pg=await pdf.getPage(i);const tc=await pg.getTextContent();text+=`\n--- pagina ${i} ---\n`+tc.items.map(t=>t.str+(t.hasEOL?"\n":" ")).join("")}
+  const images=[];
+  if(text.replace(/\s/g,"").length<300){for(let i=1;i<=Math.min(n,3);i++){const pg=await pdf.getPage(i);const vp=pg.getViewport({scale:1.6});const cv=document.createElement("canvas");cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext("2d"),viewport:vp}).promise;images.push(await new Promise(r=>cv.toBlob(r,"image/jpeg",.85)))}}
+  return{text,images};
+}
+function csPrompt(txt,hasImg){const j=job();return `Je werkt voor het lichtdepartement van de productie "${j?.name||""}". ${hasImg?"De bijgevoegde afbeeldingen zijn de callsheet.":"Hieronder staat de callsheet."} Haal ALLEEN eruit wat het lichtdepartement nodig heeft. Antwoord met uitsluitend JSON in precies dit formaat:
+{"date":"YYYY-MM-DD","dd":nummer van de draaidag of null,"title":"korte titel (aflevering/blok)","crewCall":"HH:MM","lightCall":"HH:MM call van licht/electric, anders leeg","shootStart":"HH:MM","wrap":"HH:MM verwachte wrap","sunrise":"HH:MM","sunset":"HH:MM","weather":"kort","setName":"naam van de set/draailocatie","setAddress":"volledig adres van de set (waar de lichtbus heen moet)","crewParking":"volledig adres van de crew-parkeerplaats","crewParkingNote":"korte opmerking over crew parkeren, bv. pendel of looproute","techParking":"adres parkeren tech/trucks als dat apart staat","unitBase":"unit base, parkeren trucks/bussen",
+"prelights":[{"time":"HH:MM","place":"set of locatie","who":"wie","note":"wat"}],
+"locations":[{"name":"","address":"","power":"stroom, aggregaat, aansluitingen","parking":"","note":""}],
+"scenes":[{"time":"HH:MM","scene":"scènenummer","ie":"INT of EXT","dn":"D, N, DUSK of DAWN","set":"set","note":"korte omschrijving","light":"alles relevant voor licht: effecten, practicals, regen, auto-rigs, stunts, drone, nachtscènes, cast-specifiek"}],
+"lightNotes":"alle opmerkingen voor licht/electric: aggregaat, extra materiaal, dagkrachten, pre-rig, de-rig, hoogwerker, special equipment, veiligheid",
+"crewMentions":[{"who":"naam","note":"wat er over deze persoon staat"}],
+"catering":"tijden ontbijt/lunch/diner","contacts":[{"role":"","name":"","phone":""}],"notes":"overige zaken die licht moet weten"}
+crewMentions alleen voor deze mensen: ${(j?.crew||[]).map(p=>j?.roles?.[p]||p).join(", ")}. contacts alleen productie, 1e AD, locatiemanager en gaffer. Pre-lights, pre-rigs en de-rigs van licht ALTIJD opnemen, ook voor andere dagen. Laat velden leeg ("" of []) als ze er niet in staan. Verzin niets. Tijden 24-uurs HH:MM.${txt?"\n\nCALLSHEET:\n"+txt.slice(0,90000):""}`}
+async function csRun(btn){
+  const st=$("csstatus"),file=$("csfile").files[0],pasted=$("cstext").value.trim();
+  if(!file&&!pasted){st.textContent="Kies een bestand of plak de tekst.";return}
+  if(!S.sample)S.sample=await claude.use("sample").catch(()=>null);
+  if(!S.sample){st.textContent="Automatisch lezen werkt hier niet. Stuur de callsheet naar Claude in de chat, dan wordt hij voor je toegevoegd.";return}
+  btn.disabled=true;
+  try{
+    let text=pasted,images=[],source=file?file.name:"geplakte tekst";
+    if(file){st.textContent="Bestand lezen…";
+      if(file.type==="application/pdf"||/\.pdf$/i.test(file.name)){if(!window.pdfjsLib)throw{code:"pdf"};const r=await pdfInput(file);text=(r.text+"\n"+pasted).trim();images=r.images}
+      else if(file.type.startsWith("image/"))images=[file];
+      else text=(await file.text())+"\n"+pasted;
+    }
+    if(images.length){const lim=await S.sample.limits().catch(()=>null);if(!lim?.images){if(!text.replace(/\s/g,"")){st.textContent="Deze callsheet is een scan of foto en die kan hier niet gelezen worden. Plak de tekst of stuur hem naar Claude in de chat.";btn.disabled=false;return}images=[]}}
+    st.textContent="Callsheet uitlezen… dit duurt even";
+    const data=await S.sample.json(csPrompt(text,images.length>0),{modelTier:"default",cache:false,...(images.length?{images}:{})});
+    await saveCallsheet(data,source);
+  }catch(e){st.textContent=e?.code==="not_granted"?"Je hebt geen toestemming gegeven om Claude de callsheet te laten lezen.":e?.code==="rate_limited"?"Even te veel verzoeken. Probeer het over een minuut opnieuw.":e?.code==="pdf"?"De PDF-lezer is niet geladen. Plak de tekst uit de mail.":"Uitlezen lukte niet. Probeer het opnieuw of plak de tekst.";btn.disabled=false}
+}
+async function saveCallsheet(d,source){
+  const clean={date:/^\d{4}-\d{2}-\d{2}$/.test(d?.date||"")?d.date:"",dd:Number.isFinite(+d?.dd)&&d?.dd!==null&&d?.dd!==""?+d.dd:null,source,importedAt:Date.now()};
+  ["title","setName","setAddress","crewParking","crewParkingNote","techParking","crewCall","lightCall","shootStart","wrap","sunrise","sunset","weather","unitBase","lightNotes","catering","notes"].forEach(k=>clean[k]=String(d?.[k]??"").trim());
+  Object.entries(LISTS).forEach(([k,keys])=>clean[k]=(Array.isArray(d?.[k])?d[k]:[]).slice(0,60).map(o=>{const r={};keys.forEach(x=>r[x]=String(o?.[x]??"").trim());return r}));
+  const id=clean.date||("cs"+Date.now());
+  const prev=sheetById(id);if(prev)["setName","setAddress","crewParking","crewParkingNote","techParking","catering","wrap","crewCall"].forEach(k=>{if(!clean[k]&&prev[k])clean[k]=prev[k]});
+  const ok=await write(()=>S.db.doc(`jobs/${S.jobId}/callsheets/${id}`).set(clean),"Callsheet toegevoegd");
+  if(!ok)return;
+  const call=callOf(clean),loc=clean.locations[0]?.name||"";
+  const plan={date:clean.date,location:loc,start:call,end:call?addMin(call,dayMin()):"",transport:"",equipment:clean.lightNotes};
+  Object.keys(plan).forEach(k=>{if(!plan[k])delete plan[k]});
+  let day=clean.date?S.days.find(x=>x.date===clean.date):null;
+  if(!day&&clean.dd)day=S.days.find(x=>x.n===clean.dd&&!x.date);
+  const plHours=team=>{const h={};team.forEach(p=>{const cur=(day?.hours||{})[p]||{};if(cur.pre!=null&&cur.pre!=="")return;const d=plDur(clean,p);if(d)h[p]={pre:d}});return h};
+  if(day){const ph=plHours(teamOf(day));await write(()=>S.db.doc(`jobs/${S.jobId}/days/${day.id}`).update({...plan,...(Object.keys(ph).length?{hours:ph}:{})}),"")}
+  else{let n=clean.dd&&!S.days.some(x=>x.n===clean.dd)?clean.dd:Math.max(0,...S.days.map(x=>x.n||0))+1;const team=crew().slice();await write(()=>S.db.doc(`jobs/${S.jobId}/days/${ddId(n)}`).set({n,team,hours:plHours(team),precall:0,cleanup:0,notes:"",...plan}),"")}
+  closeSheet();S.tab="cs";S.cs=id;render();window.scrollTo(0,0);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",async ev=>{
+  const crewBtn=ev.target.closest("[data-crew]");if(crewBtn&&S.canWrite){crewBtn.setAttribute("aria-pressed",crewBtn.getAttribute("aria-pressed")!=="true");return}
+  const el=ev.target.closest("[data-act]");if(!el)return;const a=el.dataset.act;
+  if(a==="close"){if(el.classList.contains("scrim")&&ev.target!==el)return;closeSheet();return}
+  if(a==="tab"){S.tab=el.dataset.tab;S.sub="";S.rc=null;if(S.tab==="cs")S.cs=null;LS.set("tab",S.tab);render();window.scrollTo(0,0);return}
+  if(a==="speccopy"){const TA=turnaround(S.me),t=specText(S.me,personDays(S.me,TA));try{await navigator.clipboard.writeText(t);toast("Specificatie gekopieerd")}catch(_){openSheet({title:"Kopieer deze tekst",html:`<textarea id="watxt" style="width:100%;min-height:260px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px">${esc(t)}</textarea><div class="sfoot"><button class="btn" data-act="close">Sluiten</button></div>`});$("watxt").select()}return}
+  if(a==="csopen"){S.cs=el.dataset.id;render();window.scrollTo(0,0);return}
+  if(a==="csback"){S.cs=null;render();return}
+  if(a==="csimport")return csImportSheet();
+  if(a==="csrun")return csRun(el);
+  if(a==="csmanual"){const dt=$("csnewdate").value;if(!dt){toast("Kies een datum");return}const id=dt;if(!sheetById(id)){await write(()=>S.db.doc(`jobs/${S.jobId}/callsheets/${id}`).set({date:dt,dd:null,title:"",prelights:[],locations:[],scenes:[],crewMentions:[],contacts:[],importedAt:Date.now(),source:"handmatig"}),"")}closeSheet();S.cs=id;render();const c=sheetById(id);if(c)csEditSheet(c);return}
+  if(a==="csedit"){const c=sheetById(S.cs);if(c)csEditSheet(c);return}
+  if(a==="cscopy"){const c=sheetById(S.cs);if(!c)return;const t=waText(c);try{await navigator.clipboard.writeText(t);toast("Gekopieerd, plak in WhatsApp")}catch(_){openSheet({title:"Kopieer deze tekst",html:`<textarea id="watxt" style="width:100%;min-height:260px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px">${esc(t)}</textarea><div class="sfoot"><button class="btn" data-act="close">Sluiten</button></div>`});const ta=$("watxt");ta.focus();ta.select()}return}
+  if(a==="hv"){S.hv=el.dataset.v;render();return}
+  if(a==="mine"){S.mineOnly=!S.mineOnly;LS.set("mine",S.mineOnly);render();return}
+  if(a==="code"){const v=($("crewcode").value||"").trim().toUpperCase();if(v)connect(v);return}
+  if(a==="home")return homeSheet();
+  if(a==="who")return whoSheet();
+  if(a==="defnew")return defSheet(null);
+  if(a==="defopen")return defSheet(el.dataset.id);
+  if(a==="pickwho"){S.me=el.dataset.p;LS.set("me",S.me);claimName(S.me);closeSheet();render();return}
+  if(a==="wk"){S.week=addDays(curWeek(),+el.dataset.d);render();return}
+  if(a==="subtot"){S.sub="tot";render();window.scrollTo(0,0);return}
+  if(a==="subback"){S.sub="";render();return}
+  if(a==="jobs"||a==="newjob"){jobsSheet();return}
+  if(a==="pickjob"){openJob(el.dataset.id);closeSheet();return}
+  if(a==="hour")return hourSheet(el.dataset.day,el.dataset.p);
+  if(a==="addperson")return addPersonSheet(el.dataset.day);
+  if(a==="day")return daySheet(el.dataset.day);
+  if(a==="addday")return daySheet(null);
+  if(a==="item")return itemSheet(el.dataset.id);
+  if(a==="additem")return itemSheet(null);
+  if(a==="recce")return recceSheet(el.dataset.id);
+  if(a==="rcopen"){S.rc=el.dataset.id;render();window.scrollTo(0,0);return}
+  if(a==="rcback"){S.rc=null;render();return}
+  if(a==="rcedit")return recceSheet(S.rc);
+  if(a==="rcphoto")return reccePhotoSheet(el.dataset.k,+el.dataset.i);
+  if(a==="phsave")return reccePhotoUpdate(el.dataset.k,+el.dataset.i,false);
+  if(a==="phdel"){if(!el.classList.contains("arm")){el.classList.add("arm");el.textContent="Zeker? Tik nogmaals";return}return reccePhotoUpdate(el.dataset.k,+el.dataset.i,true)}
+  if(a==="addrecce")return recceSheet(null);
+  if(a==="toggle"){if(!S.canWrite)return;const i=S.items.find(x=>x.id===el.dataset.id);if(i)write(()=>S.db.doc(`jobs/${S.jobId}/items/${i.id}`).update({done:!i.done}),"");return}
+  if(a==="save"&&S.sheet){el.disabled=true;const v={};S.sheet.fields.forEach(f=>v[f.key]=readField(f));const ok=await S.sheet.onSave(v);if(ok!==false)closeSheet();else el.disabled=false;return}
+  if(a==="del"&&S.sheet){if(!el.classList.contains("arm")){el.classList.add("arm");el.textContent="Zeker? Tik nogmaals";return}if(await S.sheet.onDelete()!==false)closeSheet();return}
+  if(a==="savecrew"){const c=splitNames($("f_crew").value);if(await write(()=>S.db.doc(`jobs/${S.jobId}`).update({crew:c})))closeSheet();return}
+  if(a==="createjob"){const name=$("f_jname").value.trim();if(!name){toast("Geef de klus een naam");return}const ref=S.db.collection("jobs").doc();if(await write(()=>ref.set({name,crew:splitNames($("f_jcrew").value),created:Date.now()}),`${name} aangemaakt`)){S.jobId=ref.id;LS.set("job",ref.id);closeSheet();openJob(ref.id)}return}
+});
+document.addEventListener("change",ev=>{if(ev.target.dataset&&ev.target.dataset.photo){addReccePhotos(ev.target.dataset.photo,[...ev.target.files]);ev.target.value="";return}if(ev.target.id==="navsel"){S.nav=ev.target.value;LS.set("nav",S.nav);render();return}if(ev.target.id==="monthsel"){S.month=ev.target.value;LS.set("month",S.month);render();return}if(ev.target.id==="ratein"){S.rate=ev.target.value;saveRate();render();return}if(ev.target.id==="mesel"){S.me=ev.target.value;LS.set("me",S.me);claimName(S.me);if(!S.me)S.mineOnly=false;render()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.sheet)closeSheet()});
+
+/* ---------- data ---------- */
+async function claimName(n){const j=job();if(!S.db||!S.uid||!j||!S.canWrite)return;const mem=j.members||{};const other=Object.entries(mem).find(([u,v])=>v===n&&u!==S.uid);if(other)toast(`Let op: ${n} is al gekoppeld aan een ander account`);if(mem[S.uid]===n)return;await write(()=>S.db.doc(`jobs/${j.id}`).update({members:{[S.uid]:n||""}}),"")}
+async function loadRate(){S.rate=LS.get("rate","")}
+async function saveRate(){LS.set("rate",S.rate)}
+function openJob(id){
+  if(id===S.jobId&&S.unsubs.length)return;
+  S.unsubs.forEach(u=>{try{u()}catch(_){}});S.unsubs=[];S.jobId=id;LS.set("job",id);S.days=[];S.items=[];S.recce=[];S.sheets=[];S.defects=[];S.cs=null;render();
+  if(!id||!S.db)return;
+  const sub=(name,key)=>S.unsubs.push(S.db.collection(`jobs/${id}/${name}`).onSnapshot(s=>{S[key]=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{}));
+  sub("days","days");sub("items","items");sub("recce","recce");sub("callsheets","sheets");sub("defects","defects");
+}
+const SUPA_URL="https://sglgbpmdrehejezokqkz.supabase.co",SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnbGdicG1kcmVoZWplem9rcWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1OTg0OTcsImV4cCI6MjEwODE3NDQ5N30.gbn27q5BSec_guO6POJ_30f726G2wRNuFtCVkkl6x7o";let SB=null;
+function makeDb(sb){
+  const cache=new Map(),subs=new Map();let cursor=null;
+  const collOf=p=>p.split("/").slice(0,-1).join("/");
+  const notify=c=>(subs.get(c)||[]).slice().forEach(f=>f());
+  const snapOf=c=>{const docs=[];cache.forEach((v,p)=>{if(v.coll===c)docs.push({id:p.split("/").pop(),exists:true,data:()=>v.data})});return{docs,size:docs.length,empty:!docs.length}};
+  const norm=e=>({code:/row-level|permission|42501/i.test((e&&(e.message||e.code))||"")?"invalid_argument":"unavailable",message:e&&e.message});
+  const deep=(a,b)=>{if(!a||typeof a!=="object"||Array.isArray(a)||!b||typeof b!=="object"||Array.isArray(b))return b;const o={...a};for(const k in b)o[k]=deep(a[k],b[k]);return o};
+  const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  function apply(rows){const touched=new Set();for(const r of rows){if(!cursor||r.updated_at>cursor)cursor=r.updated_at;const cur=cache.get(r.path);
+      if(r.deleted){if(cur){cache.delete(r.path);touched.add(r.coll)}continue}
+      if(!cur||JSON.stringify(cur.data)!==JSON.stringify(r.data)){cache.set(r.path,{coll:r.coll,data:r.data});touched.add(r.coll)}}
+    touched.forEach(notify)}
+  async function load(){const {data,error}=await sb.from("docs").select("path,coll,data,deleted,updated_at").eq("deleted",false);if(error)throw norm(error);apply(data||[])}
+  let busy=false;async function poll(){if(busy||document.hidden)return;busy=true;try{let q=sb.from("docs").select("path,coll,data,deleted,updated_at");if(cursor)q=q.gt("updated_at",new Date(new Date(cursor).getTime()-4000).toISOString());const {data,error}=await q;if(!error)apply(data||[])}finally{busy=false}}
+  function ref(path){const id=path.split("/").pop(),c=collOf(path);return{id,path,
+    async get(){const v=cache.get(path);return{id,exists:!!v,data:()=>v&&v.data}},
+    async set(d){cache.set(path,{coll:c,data:d});notify(c);const {error}=await sb.from("docs").upsert({path,coll:c,data:d,deleted:false});if(error)throw norm(error)},
+    async update(d){const cur=cache.get(path);if(!cur)throw{code:"invalid_argument",message:"bestaat niet"};cache.set(path,{coll:c,data:deep(cur.data,d)});notify(c);const {error}=await sb.rpc("merge_doc",{p:path,c,patch:d});if(error)throw norm(error)},
+    async delete(){if(cache.delete(path))notify(c);const {error}=await sb.from("docs").update({deleted:true}).eq("path",path);if(error)throw norm(error)},
+    onSnapshot(next){const f=()=>{const v=cache.get(path);next({id,exists:!!v,data:()=>v&&v.data})};const a=subs.get(c)||[];a.push(f);subs.set(c,a);setTimeout(f,0);return()=>{const i=a.indexOf(f);if(i>=0)a.splice(i,1)}},
+    collection(sub){return coll(path+"/"+sub)}}}
+  function coll(c){return{path:c,doc(id){return ref(c+"/"+(id||nid()))},async add(d){const r=ref(c+"/"+nid());await r.set(d);return r},
+    onSnapshot(next){const f=()=>next(snapOf(c));const a=subs.get(c)||[];a.push(f);subs.set(c,a);setTimeout(f,0);return()=>{const i=a.indexOf(f);if(i>=0)a.splice(i,1)}}}}
+  return{doc:ref,collection:coll,load,poll}}
+function codeScreen(msg){S.status="code";$("main").innerHTML=`<div class="empty" style="text-align:left"><h3>Welkom bij de lichtcrew</h3><p style="margin:0 0 14px">Vul de crewcode in die je van Justin of Michel hebt gekregen. Dit hoeft maar één keer.</p>
+  <div class="field"><label for="crewcode">Crewcode</label><input id="crewcode" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;font-family:var(--mono);font-size:20px;letter-spacing:.1em"></div>
+  ${msg?`<p style="color:var(--red);margin:10px 0 0">${esc(msg)}</p>`:""}<div class="sfoot"><button class="btn primary" data-act="code">Inloggen</button></div></div>`}
+async function connect(code){
+  if(!window.supabase||SUPA_URL.startsWith("__")){S.status="nodb";render();return false}
+  SB=supabase.createClient(SUPA_URL,SUPA_KEY,{global:{headers:{"x-crew-code":code}},auth:{persistSession:false,autoRefreshToken:false}});
+  const {data:ok,error}=await SB.rpc("crew_ok");if(error){S.status="nodb";render();return false}
+  if(!ok){SB=null;LS.set("code","");codeScreen("Deze code klopt niet. Controleer hem en probeer het opnieuw.");return false}
+  LS.set("code",code);const db=makeDb(SB);await db.load();S.db=db;
+  setInterval(()=>db.poll(),7000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)db.poll()});
+  db.collection("jobs").onSnapshot(s=>{
+    S.jobs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.created||0)-(a.created||0));
+    S.status="ready";{const m=(S.jobs.find(j=>j.id===S.jobId)?.members||{})[S.uid];if(m&&m!==S.me){S.me=m;LS.set("me",m)}}
+    if(!S.jobs.some(j=>j.id===S.jobId)){S.jobId=null;S.unsubs.forEach(u=>u());S.unsubs=[];if(S.jobs[0])openJob(S.jobs[0].id)}
+    else if(!S.unsubs.length)openJob(S.jobId);
+    render()});
+  return true}
+(async function boot(){
+  S.uid=LS.get("dev","")||("d"+Date.now().toString(36)+Math.random().toString(36).slice(2,8));LS.set("dev",S.uid);loadRate();
+  render();
+  let code=LS.get("code","");const h=location.hash.replace(/^#/,"");if(/^[A-Za-z0-9-]{4,}$/.test(h)){code=h.toUpperCase();try{history.replaceState(null,"",location.pathname)}catch(_){}}
+  if(!code){codeScreen();return}
+  await connect(code);
+})();
 </script>
 </body>
 </html>
